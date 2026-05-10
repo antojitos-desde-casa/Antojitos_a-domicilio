@@ -228,7 +228,7 @@
             btnPedirFinal.innerText = "🚀 ENVIAR SOLICITUD";
             btnPedirFinal.disabled = false;
         } else {
-            btnPedirFinal.innerText = "⚠️ POR FAVOR ACTIVA TU GPS";
+            btnPedirFinal.innerText = "⚠️ ACTIVA TU GPS";
             btnPedirFinal.disabled = true;
         }
 
@@ -283,9 +283,10 @@
     let esRepartidor = false;
     let idRepartidor = null;
     let numeroAdminEmpleo = "";
-    let watchId = null; // Para controlar el watchPosition
-    let retryTimer = null; // Para reintento automático
-    let enviandoPedido = false; // Candado anti doble-click
+    let watchId = null;
+    let retryTimer = null;
+    let enviandoPedido = false;
+    let hayActualizacion = false; // <- NUEVO: para saber si hay update
 
     let ejemplosAdmin = {
         MANDADO: "Ej: Necesito un galón de pintura blanca...",
@@ -295,13 +296,38 @@
     };
 
     window.onload = () => {
+        // ===== REGISTRO SW CON DETECTOR DE ACTUALIZACIONES =====
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
-              .then(() => console.log("Servicio de App Activo"))
-              .catch(err => console.log("Error al activar App", err));
+             .then(reg => {
+                console.log("Servicio de App Activo");
+                // Detecta cuando hay versión nueva
+                reg.addEventListener('updatefound', () => {
+                  const newWorker = reg.installing;
+                  newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                      hayActualizacion = true;
+                      mostrarToastActualizar();
+                    }
+                  });
+                });
+              })
+             .catch(err => console.log("Error al activar App", err));
         }
 
-        iniciarGPS(); // Cambié el nombre para que quede más claro
+        // Muestra el toast cada vez que vuelve a la app
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && hayActualizacion) {
+                mostrarToastActualizar();
+            }
+        });
+
+        // También al cargar por primera vez
+        window.addEventListener('pageshow', () => {
+            if (hayActualizacion) mostrarToastActualizar();
+        });
+
+        iniciarGPS();
         cargarConfig();
         vigilarRepartidores();
 
@@ -323,17 +349,46 @@
         if(savedRepartidor) autoVerificar(savedRepartidor);
     };
 
+    // ===== FUNCIONES NUEVAS PARA ACTUALIZAR =====
+    function mostrarToastActualizar() {
+        if (document.getElementById('toast-update')) return; // No duplicar
+
+        const toast = document.createElement('div');
+        toast.id = 'toast-update';
+        toast.innerHTML = `
+            <div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#323232;color:white;padding:12px 16px;border-radius:8px;z-index:9999;box-shadow:0 4px 12px #0003;display:flex;align-items:center;gap:12px;max-width:90%;">
+                <span>🚀 Nueva versión lista</span>
+                <button onclick="actualizarApp()" style="background:#25D366;color:white;border:none;padding:6px 12px;border-radius:6px;font-weight:bold;">
+                    Actualizar
+                </button>
+                <button onclick="document.getElementById('toast-update').remove()" style="background:none;color:#aaa;border:none;font-size:20px;line-height:1;">
+                    ×
+                </button>
+            </div>
+        `;
+        document.body.appendChild(toast);
+    }
+
+    function actualizarApp() {
+        navigator.serviceWorker.getRegistration().then(reg => {
+            if (reg && reg.waiting) {
+                reg.waiting.postMessage({type: 'SKIP_WAITING'});
+            }
+        });
+        window.location.reload();
+    }
+
     function vigilarRepartidores() {
         db.collection("usuarios")
-     .where("rol", "==", "REPARTIDOR")
-     .where("disponible", "==", true)
-     .onSnapshot(snap => {
+    .where("rol", "==", "REPARTIDOR")
+    .where("disponible", "==", true)
+    .onSnapshot(snap => {
                 const aviso = document.getElementById('avisoNoRepartidores');
                 const statusTag = document.getElementById('statusHorario');
 
                 if (tiendaAbierta) {
                     if (snap.empty) {
-                        statusTag.innerText = "🟡 PAUSADO - Nuestros repartidores están entregando pedidos, intente mas tarde.";
+                        statusTag.innerText = "🟡 PAUSADO - No hay repartidores";
                         statusTag.className = "horario-tag pausado";
                         if(aviso) aviso.classList.remove('hidden');
                     } else {
@@ -449,7 +504,7 @@
 
     function actualizarBotonEstado(disponible) {
         const btn = document.getElementById('btnStatusRepartidor');
-        btn.innerText = disponible? "🟢 ESTÁS ACTIVO (Recibiendo pedidos)" : "🔴 ESTÁS INACTIVO (No recibes pedidos en este estado";
+        btn.innerText = disponible? "🟢 ESTÁS ACTIVO (Recibiendo pedidos)" : "🔴 ESTÁS INACTIVO";
         btn.style.background = disponible? "#2ecc71" : "#e74c3c";
         btn.style.color = "white";
     }
@@ -494,13 +549,11 @@
             return;
         }
 
-        // Limpiamos watch anterior si existe
         if (watchId!== null) {
             navigator.geolocation.clearWatch(watchId);
             watchId = null;
         }
 
-        // Limpiamos timer de reintento si existe
         if (retryTimer) {
             clearTimeout(retryTimer);
             retryTimer = null;
@@ -510,7 +563,6 @@
         document.getElementById('puntoGps').className = "dot dot-rojo";
 
         watchId = navigator.geolocation.watchPosition((pos) => {
-            // Si llegamos aquí, el GPS funciona. Cancelamos reintentos
             if (retryTimer) {
                 clearTimeout(retryTimer);
                 retryTimer = null;
@@ -522,12 +574,11 @@
         }, (error) => {
             console.log("Error GPS:", error.code);
             if (error.code === 1) {
-                mostrarErrorGPS("❌ Permiso Denegado", "Activa tu GPS y reintenta ⬆️ nuevamente");
-                if (retryTimer) clearTimeout(retryTimer); // No reintentar si denegó
+                mostrarErrorGPS("❌ Permiso Denegado", "Acepta el permiso de ubicación");
+                if (retryTimer) clearTimeout(retryTimer);
             } else {
                 document.getElementById('textoGps').innerText = "Buscando señal GPS...";
                 document.getElementById('puntoGps').className = "dot dot-rojo";
-                // Reintento automático cada 5 segundos si GPS apagado o sin señal
                 if (!retryTimer) {
                     retryTimer = setTimeout(() => {
                         iniciarGPS();
@@ -576,7 +627,6 @@
     }
 
     async function lanzarPedido() {
-        // Candado: si ya se está enviando, no hace nada
         if (enviandoPedido) return;
 
         const btnPedir = document.getElementById('btnPedirFinal');
@@ -593,7 +643,6 @@
             if(!continuar) return;
         }
 
-        // Activamos el candado y bloqueamos el botón
         enviandoPedido = true;
         btnPedir.disabled = true;
         btnPedir.innerText = "⏳ ENVIANDO...";
@@ -607,7 +656,6 @@
 
             if (snapRepartidores.empty) {
                 alert("No hay repartidores activos.");
-                // Si falla, quitamos el candado y reactivamos botón
                 enviandoPedido = false;
                 if(typeof verificarEstadoGlobal === "function") verificarEstadoGlobal();
                 return;
@@ -635,9 +683,8 @@
         } catch(e) {
             console.error(e);
             alert("Error de conexión.");
-            // Si hay error, quitamos candado para que pueda reintentar
             enviandoPedido = false;
             if(typeof verificarEstadoGlobal === "function") verificarEstadoGlobal();
         }
     }
-</script>
+                            </script>
