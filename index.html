@@ -119,10 +119,10 @@
         </div>
         <div class="area-total">
             <div id="avisoNoRepartidores" class="hidden">
-                ⚠️ Lo sentimos, no hay repartidores disponibles en este momento.
+                ⚠️ Lo sentimos, no hay repartidores activos en este momento.
             </div>
             
-            <button id="btnPedirFinal" class="btn-pedir" onclick="lanzarPedido()" disabled>⚠️ PORFAVOR ACTIVA TU GPS PARA UBICARTE</button>
+            <button id="btnPedirFinal" class="btn-pedir" onclick="lanzarPedido()" disabled>⚠️ ACTIVA TU GPS</button>
             <a id="btnVerProductos" href="#" target="_blank" class="btn-productos hidden">🛒 Ver Precios y Productos</a>
         </div>
     </div>
@@ -214,7 +214,7 @@
 
         // PRIORIDAD 2: NO HAY REPARTIDORES
         if (sinRepartidores) {
-            btnPedirFinal.innerText = "⚠️ NO HAY REPARTIDORES DISPONIBLES. INTENTE NUEVAMENTE EN 15 MINUTOS";
+            btnPedirFinal.innerText = "⚠️ NO HAY REPARTIDORES DISPONIBLES POR EL MOMENTO. INTENTE NUEVAMENTE EN 15 MINUTOS";
             btnPedirFinal.style.backgroundColor = "#ff7675"; 
             btnPedirFinal.style.color = "white";
             btnPedirFinal.style.pointerEvents = "none";
@@ -228,7 +228,7 @@
             btnPedirFinal.innerText = "🚀 ENVIAR SOLICITUD";
             btnPedirFinal.disabled = false;
         } else {
-            btnPedirFinal.innerText = "⚠️ POR FAVOR ACTIVA TU GPS PARA UBICARTE";
+            btnPedirFinal.innerText = "⚠️ ACTIVA TU GPS";
             btnPedirFinal.disabled = true;
         }
 
@@ -323,7 +323,7 @@
 
                 if (tiendaAbierta) {
                     if (snap.empty) {
-                        statusTag.innerText = "🟡 PAUSADO - Nuestros repartidoes están atendiendo pedidos en este momento";
+                        statusTag.innerText = "🟡 PAUSADO - No hay repartidores";
                         statusTag.className = "horario-tag pausado";
                         if(aviso) aviso.classList.remove('hidden');
                     } else {
@@ -345,7 +345,7 @@
                 const statusTag = document.getElementById('statusHorario');
 
                 if (!tiendaAbierta) {
-                    statusTag.innerText = "🔴 CERRADO, INTENTE NUEVAMENTE EN OTRA OCASIÓN";
+                    statusTag.innerText = "🔴 CERRADO";
                     statusTag.className = "horario-tag cerrado";
                 }
 
@@ -441,7 +441,7 @@
 
     function actualizarBotonEstado(disponible) {
         const btn = document.getElementById('btnStatusRepartidor');
-        btn.innerText = disponible? "🟢 ESTÁS ACTIVO (Recibiendo pedidos)" : "🔴 ESTÁS INACTIVO (No recibes pedidos en este estado)";
+        btn.innerText = disponible? "🟢 ESTÁS ACTIVO (Recibiendo pedidos)" : "🔴 ESTÁS INACTIVO";
         btn.style.background = disponible? "#2ecc71" : "#e74c3c";
         btn.style.color = "white";
     }
@@ -588,4 +588,4 @@
             alert("Error de conexión.");
         }
     }
-</script>
+                                          </script>
