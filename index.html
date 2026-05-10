@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -74,8 +75,29 @@
         .area-total { text-align: center; margin-top: 20px; padding: 15px; background: #fff; border-radius: 15px; }
         .btn-pedir { background: var(--naranja); color: white; border: none; width: 100%; padding: 18px; border-radius: 18px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         .btn-pedir:disabled { background: #ccc; cursor: not-allowed; }
-        .btn-productos { display: block; background: #fff; color: var(--naranja); border: 2px solid var(--naranja); width: 100%; padding: 15px; border-radius: 18px; font-size: 1em; font-weight: bold; text-decoration: none; text-align: center; margin-top: 15px; box-sizing: border-box; transition: 0.3s; }
-        .btn-productos:active { background: #fff3e0; }
+        
+        /* --- BOTÓN FLOTANTE EDITADO --- */
+        .btn-productos { 
+            position: fixed; 
+            bottom: 115px; /* Altura para quedar arriba del botón de pedir */
+            right: 20px; 
+            display: inline-block; 
+            background: var(--blanco); 
+            color: var(--naranja); 
+            border: 2px solid var(--naranja); 
+            width: auto; 
+            padding: 12px 18px; 
+            border-radius: 30px; 
+            font-size: 0.9em; 
+            font-weight: bold; 
+            text-decoration: none; 
+            text-align: center; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            z-index: 9999; 
+            transition: 0.3s; 
+        }
+        .btn-productos:active { background: #fff3e0; transform: scale(0.95); }
+
         .repartidor-panel { background: #ebf5ff; border: 2px solid var(--azul); padding: 20px; border-radius: 20px; margin-top: 10px; text-align: center; }
         .status-toggle { padding: 15px; border-radius: 15px; font-weight: bold; border: none; width: 100%; cursor: pointer; margin-bottom: 15px; font-size: 1em; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .lista-colegas { font-size: 0.85em; color: #555; text-align: left; background: #f9fbff; padding: 12px; border-radius: 15px; margin-top: 15px; border: 1px solid #d0e1f9; }
@@ -108,7 +130,7 @@
         <div class="grid-servicios">
             <button type="button" id="btn-MANDADO" onclick="seleccionarServicio('MANDADO')" class="btn-servicio activo" style="color:#1565c0;">📦 Mandado / Tienda</button>
             <button type="button" id="btn-COMIDA" onclick="seleccionarServicio('COMIDA')" class="btn-servicio" style="color:#e65100;">🍔 Comida Hecha</button>
-            <button type="button" id="btn-EMPLEO" onclick="seleccionarServicio('EMPLEO')" class="btn-servicio" style="color:#2e7d32;">🧹 Empleo por 1 Día</button>
+            <button type="button" id="btn-EMPLEO" onclick="seleccionarServicio('EMPLEO')" class="btn-servicio" style="color:#2e7d32;">🧹 Empleo por 1 Día </button>
             <button type="button" id="btn-OTRO" onclick="seleccionarServicio('OTRO')" class="btn-servicio" style="color:#7b1fa2;">✨ Otro Servicio</button>
         </div>
         <textarea id="detallePedido" placeholder="Cargando sugerencia..." rows="4" style="border: 2px solid var(--azul);"></textarea>
@@ -119,11 +141,12 @@
         </div>
         <div class="area-total">
             <div id="avisoNoRepartidores" class="hidden">
-                ⚠️ Lo sentimos, no hay repartidores activos en este momento.
+                ⚠️ Lo sentimos, no hay repartidores activos en este momento.vuelva en 15 minutos 
             </div>
             
-            <button id="btnPedirFinal" class="btn-pedir" onclick="lanzarPedido()" disabled>⚠️ POR FAVOR ACTIVA TU GPS PARA UBICARTE </button>
-            <a id="btnVerProductos" href="#" target="_blank" class="btn-productos hidden">🛒 Ver Precios y Productos</a>
+            <button id="btnPedirFinal" class="btn-pedir" onclick="lanzarPedido()" disabled>⚠️ POR FAVOR ACTIVA TU GPS PARA SABER DONDE ENVIAR TU PEDIDO</button>
+            <a id="btnVerProductos" href="bit.ly/antojitosP" target="_blank" class="btn-productos">🛒 Ver Precios y Productos
+            (catalogo)</a>
         </div>
     </div>
 
@@ -161,13 +184,13 @@
 
     <div id="pantallaEstado" class="hidden" style="text-align:center; padding: 40px 10px;">
         <h3>¡Solicitud Enviada! 🚀</h3>
-        <p id="msgConfirmacion">Se ha notificado a un repartidor activo.</p>
+        <p id="msgConfirmacion">Se ha notificado a un repartidor activo.Recibira mas detalles y el costo de envio por un mensaje de WhatsApp</p>
         <button class="btn-pedir" onclick="location.reload()">NUEVA SOLICITUD</button>
     </div>
 </div>
 
 <script>
-    // LÓGICA DISCRETA PARA INSTALACIÓN APK
+    // LÓGICA MANTENIDA INTACTA
     let promptInstalacion;
     const btnInstalar = document.getElementById('btnInstalarPWA');
 
@@ -201,65 +224,36 @@
         const sinRepartidores = !avisoNoRep.classList.contains("hidden");
         const gpsListo = puntoGps && puntoGps.classList.contains('dot-verde');
 
-        // PRIORIDAD 1: CERRADO
         if (esCerrado) {
             btnPedirFinal.innerText = "🚫 ESTAMOS CERRADOS POR EL MOMENTO";
-            btnPedirFinal.style.backgroundColor = "#b2bec3"; 
-            btnPedirFinal.style.color = "#333";
-            btnPedirFinal.style.pointerEvents = "none";
-            btnPedirFinal.style.fontSize = "0.9em";
             btnPedirFinal.disabled = true;
             return; 
         }
 
-        // PRIORIDAD 2: NO HAY REPARTIDORES
         if (sinRepartidores) {
-            btnPedirFinal.innerText = "⚠️ NO HAY REPARTIDORES DISPONIBLES POR EL MOMENTO. INTENTE NUEVAMENTE EN 15 MINUTOS";
-            btnPedirFinal.style.backgroundColor = "#ff7675"; 
-            btnPedirFinal.style.color = "white";
-            btnPedirFinal.style.pointerEvents = "none";
-            btnPedirFinal.style.fontSize = "0.8em";
+            btnPedirFinal.innerText = "⚠️ NO HAY REPARTIDORES DISPONIBLES,REGRESE MAS TARDE";
             btnPedirFinal.disabled = true;
             return; 
         }
 
-        // PRIORIDAD 3: TODO BIEN (Revisar GPS)
         if (gpsListo) {
             btnPedirFinal.innerText = "🚀 ENVIAR SOLICITUD";
             btnPedirFinal.disabled = false;
         } else {
-            btnPedirFinal.innerText = "⚠️ POR FAVOR ACTIVA TU GPS PARA UBICARTE";
+            btnPedirFinal.innerText = "⚠️ POR FAVOR ACTIVA TU GPS PARA SABER DONDE LLEVAR TU PEDIDO";
             btnPedirFinal.disabled = true;
         }
-
-        // Restaurar estilos base del botón
-        btnPedirFinal.style.backgroundColor = ""; 
-        btnPedirFinal.style.color = "";
-        btnPedirFinal.style.pointerEvents = "auto";
-        btnPedirFinal.style.fontSize = "1.1em";
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         verificarEstadoGlobal();
         const observerStatus = new MutationObserver(verificarEstadoGlobal);
-        observerStatus.observe(document.getElementById('statusHorario'), { 
-            childList: true, 
-            attributes: true, 
-            characterData: true, 
-            subtree: true 
-        });
+        observerStatus.observe(document.getElementById('statusHorario'), { childList: true, attributes: true, characterData: true, subtree: true });
         const observerAviso = new MutationObserver(verificarEstadoGlobal);
-        observerAviso.observe(document.getElementById('avisoNoRepartidores'), { 
-            attributes: true, 
-            attributeFilter: ['class'] 
-        });
-        
-        // Observador extra para que el botón se actualice si el GPS cambia a verde
+        observerAviso.observe(document.getElementById('avisoNoRepartidores'), { attributes: true, attributeFilter: ['class'] });
         const observerGps = new MutationObserver(verificarEstadoGlobal);
         const puntoGps = document.getElementById('puntoGps');
-        if(puntoGps) {
-            observerGps.observe(puntoGps, { attributes: true, attributeFilter: ['class'] });
-        }
+        if(puntoGps) { observerGps.observe(puntoGps, { attributes: true, attributeFilter: ['class'] }); }
     });
 </script>
 
@@ -283,10 +277,9 @@
     let esRepartidor = false;
     let idRepartidor = null;
     let numeroAdminEmpleo = "";
-    let watchId = null;
-    let retryTimer = null;
-    let enviandoPedido = false;
-    let hayActualizacion = false; // <- NUEVO: para saber si hay update
+    let watchId = null; // Para controlar el watchPosition
+    let retryTimer = null; // Para reintento automático
+    let enviandoPedido = false; // Candado anti doble-click
 
     let ejemplosAdmin = {
         MANDADO: "Ej: Necesito un galón de pintura blanca...",
@@ -296,38 +289,13 @@
     };
 
     window.onload = () => {
-        // ===== REGISTRO SW CON DETECTOR DE ACTUALIZACIONES =====
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
-             .then(reg => {
-                console.log("Servicio de App Activo");
-                // Detecta cuando hay versión nueva
-                reg.addEventListener('updatefound', () => {
-                  const newWorker = reg.installing;
-                  newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                      hayActualizacion = true;
-                      mostrarToastActualizar();
-                    }
-                  });
-                });
-              })
-             .catch(err => console.log("Error al activar App", err));
+              .then(() => console.log("Servicio de App Activo"))
+              .catch(err => console.log("Error al activar App", err));
         }
 
-        // Muestra el toast cada vez que vuelve a la app
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible' && hayActualizacion) {
-                mostrarToastActualizar();
-            }
-        });
-
-        // También al cargar por primera vez
-        window.addEventListener('pageshow', () => {
-            if (hayActualizacion) mostrarToastActualizar();
-        });
-
-        iniciarGPS();
+        iniciarGPS(); // Cambié el nombre para que quede más claro
         cargarConfig();
         vigilarRepartidores();
 
@@ -349,46 +317,17 @@
         if(savedRepartidor) autoVerificar(savedRepartidor);
     };
 
-    // ===== FUNCIONES NUEVAS PARA ACTUALIZAR =====
-    function mostrarToastActualizar() {
-        if (document.getElementById('toast-update')) return; // No duplicar
-
-        const toast = document.createElement('div');
-        toast.id = 'toast-update';
-        toast.innerHTML = `
-            <div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#323232;color:white;padding:12px 16px;border-radius:8px;z-index:9999;box-shadow:0 4px 12px #0003;display:flex;align-items:center;gap:12px;max-width:90%;">
-                <span>🚀 Nueva versión lista</span>
-                <button onclick="actualizarApp()" style="background:#25D366;color:white;border:none;padding:6px 12px;border-radius:6px;font-weight:bold;">
-                    Actualizar
-                </button>
-                <button onclick="document.getElementById('toast-update').remove()" style="background:none;color:#aaa;border:none;font-size:20px;line-height:1;">
-                    ×
-                </button>
-            </div>
-        `;
-        document.body.appendChild(toast);
-    }
-
-    function actualizarApp() {
-        navigator.serviceWorker.getRegistration().then(reg => {
-            if (reg && reg.waiting) {
-                reg.waiting.postMessage({type: 'SKIP_WAITING'});
-            }
-        });
-        window.location.reload();
-    }
-
     function vigilarRepartidores() {
         db.collection("usuarios")
-    .where("rol", "==", "REPARTIDOR")
-    .where("disponible", "==", true)
-    .onSnapshot(snap => {
+     .where("rol", "==", "REPARTIDOR")
+     .where("disponible", "==", true)
+     .onSnapshot(snap => {
                 const aviso = document.getElementById('avisoNoRepartidores');
                 const statusTag = document.getElementById('statusHorario');
 
                 if (tiendaAbierta) {
                     if (snap.empty) {
-                        statusTag.innerText = "🟡 PAUSADO - Nuestros repartidores están entregando pedidos";
+                        statusTag.innerText = "🟡 PAUSADO - Nuestros repartidores estan entregando pedidos ";
                         statusTag.className = "horario-tag pausado";
                         if(aviso) aviso.classList.remove('hidden');
                     } else {
@@ -504,7 +443,7 @@
 
     function actualizarBotonEstado(disponible) {
         const btn = document.getElementById('btnStatusRepartidor');
-        btn.innerText = disponible? "🟢 ESTÁS ACTIVO (Recibiendo pedidos)" : "🔴 ESTÁS INACTIVO (No recibes pedidos en este estado)";
+        btn.innerText = disponible? "🟢 ESTÁS ACTIVO (Recibiendo pedidos)" : "🔴 ESTÁS INACTIVO (No recibes pedidos en este estado";
         btn.style.background = disponible? "#2ecc71" : "#e74c3c";
         btn.style.color = "white";
     }
@@ -549,11 +488,13 @@
             return;
         }
 
+        // Limpiamos watch anterior si existe
         if (watchId!== null) {
             navigator.geolocation.clearWatch(watchId);
             watchId = null;
         }
 
+        // Limpiamos timer de reintento si existe
         if (retryTimer) {
             clearTimeout(retryTimer);
             retryTimer = null;
@@ -563,6 +504,7 @@
         document.getElementById('puntoGps').className = "dot dot-rojo";
 
         watchId = navigator.geolocation.watchPosition((pos) => {
+            // Si llegamos aquí, el GPS funciona. Cancelamos reintentos
             if (retryTimer) {
                 clearTimeout(retryTimer);
                 retryTimer = null;
@@ -574,11 +516,12 @@
         }, (error) => {
             console.log("Error GPS:", error.code);
             if (error.code === 1) {
-                mostrarErrorGPS("❌ Permiso Denegado", "Activa tu GPS y reintenta ⬆️ nuevamente");
-                if (retryTimer) clearTimeout(retryTimer);
+                mostrarErrorGPS("❌ Permiso Denegado", "Acetiva tu GPS y reintenta ⬆️ nuevamente");
+                if (retryTimer) clearTimeout(retryTimer); // No reintentar si denegó
             } else {
                 document.getElementById('textoGps').innerText = "Buscando señal GPS...";
                 document.getElementById('puntoGps').className = "dot dot-rojo";
+                // Reintento automático cada 5 segundos si GPS apagado o sin señal
                 if (!retryTimer) {
                     retryTimer = setTimeout(() => {
                         iniciarGPS();
@@ -627,6 +570,7 @@
     }
 
     async function lanzarPedido() {
+        // Candado: si ya se está enviando, no hace nada
         if (enviandoPedido) return;
 
         const btnPedir = document.getElementById('btnPedirFinal');
@@ -643,6 +587,7 @@
             if(!continuar) return;
         }
 
+        // Activamos el candado y bloqueamos el botón
         enviandoPedido = true;
         btnPedir.disabled = true;
         btnPedir.innerText = "⏳ ENVIANDO...";
@@ -656,6 +601,7 @@
 
             if (snapRepartidores.empty) {
                 alert("No hay repartidores activos.");
+                // Si falla, quitamos el candado y reactivamos botón
                 enviandoPedido = false;
                 if(typeof verificarEstadoGlobal === "function") verificarEstadoGlobal();
                 return;
@@ -683,8 +629,9 @@
         } catch(e) {
             console.error(e);
             alert("Error de conexión.");
+            // Si hay error, quitamos candado para que pueda reintentar
             enviandoPedido = false;
             if(typeof verificarEstadoGlobal === "function") verificarEstadoGlobal();
         }
     }
-                            </script>
+</script>
