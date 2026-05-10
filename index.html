@@ -2,17 +2,6 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Antojitos Pueblo Nuevo - Mandados y Comida a Domicilio</title>
-<meta name="description" content="Servicio de mandados, comida y limpieza en Pueblo Nuevo, Estelí. Pide fácil y rápido con GPS exacto.">
-<meta name="keywords" content="Antojitos, Pueblo Nuevo, Mandados, Estelí, Comida a domicilio, Nicaragua">
-<meta name="author" content="Jefhry">
-
-<meta property="og:title" content="Antojitos Pueblo Nuevo 🚀">
-<meta property="og:description" content="¡Pide tus mandados y comida desde nuestra App oficial!">
-<meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/1041/1041883.png">
-<meta property="og:url" content="https://antojitos-desde-casa.github.io/Antojitos_a-domicilio/">
-<meta property="og:type" content="website">
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Antojitos Pueblo Nuevo - Servicios</title>
 
@@ -49,8 +38,8 @@
         .horario-tag { 
             display: block; 
             text-align: center; 
-            font-size: 1.4em; /* ¡Más grande aún! */
-            padding: 18px;    /* Más espacio */
+            font-size: 1.4em; 
+            padding: 18px;    
             border-radius: 20px; 
             margin-bottom: 20px; 
             font-weight: 900; 
@@ -130,10 +119,10 @@
         </div>
         <div class="area-total">
             <div id="avisoNoRepartidores" class="hidden">
-                ⚠️ Lo sentimos, no hay repartidores disponibles en este momento, intenté mas tarde.
+                ⚠️ Lo sentimos, no hay repartidores disponibles en este momento.
             </div>
             
-            <button id="btnPedirFinal" class="btn-pedir" onclick="lanzarPedido()" disabled>⚠️ PORFAVOR ACTIVA TU GPS</button>
+            <button id="btnPedirFinal" class="btn-pedir" onclick="lanzarPedido()" disabled>⚠️ PORFAVOR ACTIVA TU GPS PARA UBICARTE</button>
             <a id="btnVerProductos" href="#" target="_blank" class="btn-productos hidden">🛒 Ver Precios y Productos</a>
         </div>
     </div>
@@ -203,28 +192,51 @@
         const statusTag = document.getElementById('statusHorario');
         const btnPedirFinal = document.getElementById('btnPedirFinal');
         const avisoNoRep = document.getElementById('avisoNoRepartidores');
+        const puntoGps = document.getElementById('puntoGps'); 
 
         if (!statusTag || !btnPedirFinal) return;
 
         const textoEstado = statusTag.innerText.toUpperCase();
         const esCerrado = textoEstado.includes("CERRADO") || statusTag.classList.contains("cerrado");
         const sinRepartidores = !avisoNoRep.classList.contains("hidden");
+        const gpsListo = puntoGps && puntoGps.classList.contains('dot-verde');
 
-        if (esCerrado || sinRepartidores) {
-            btnPedirFinal.innerText = "🚫 Estamos cerrados por el momento. Vuelva en otra ocasión.";
+        // PRIORIDAD 1: CERRADO
+        if (esCerrado) {
+            btnPedirFinal.innerText = "🚫 ESTAMOS CERRADOS POR EL MOMENTO, INTENTÉ EN OTRA OCASIÓN";
             btnPedirFinal.style.backgroundColor = "#b2bec3"; 
             btnPedirFinal.style.color = "#333";
             btnPedirFinal.style.pointerEvents = "none";
-            btnPedirFinal.style.fontSize = "0.85em";
+            btnPedirFinal.style.fontSize = "0.9em";
             btnPedirFinal.disabled = true;
-        } else {
-            if (btnPedirFinal.style.backgroundColor === "rgb(178, 190, 195)") {
-                btnPedirFinal.style.backgroundColor = ""; 
-                btnPedirFinal.style.color = "";
-                btnPedirFinal.style.pointerEvents = "auto";
-                btnPedirFinal.style.fontSize = "1.1em";
-            }
+            return; 
         }
+
+        // PRIORIDAD 2: NO HAY REPARTIDORES
+        if (sinRepartidores) {
+            btnPedirFinal.innerText = "⚠️ NO HAY REPARTIDORES DISPONIBLES. INTENTE NUEVAMENTE EN 15 MINUTOS";
+            btnPedirFinal.style.backgroundColor = "#ff7675"; 
+            btnPedirFinal.style.color = "white";
+            btnPedirFinal.style.pointerEvents = "none";
+            btnPedirFinal.style.fontSize = "0.8em";
+            btnPedirFinal.disabled = true;
+            return; 
+        }
+
+        // PRIORIDAD 3: TODO BIEN (Revisar GPS)
+        if (gpsListo) {
+            btnPedirFinal.innerText = "🚀 ENVIAR SOLICITUD";
+            btnPedirFinal.disabled = false;
+        } else {
+            btnPedirFinal.innerText = "⚠️ POR FAVOR ACTIVA TU GPS PARA UBICARTE";
+            btnPedirFinal.disabled = true;
+        }
+
+        // Restaurar estilos base del botón
+        btnPedirFinal.style.backgroundColor = ""; 
+        btnPedirFinal.style.color = "";
+        btnPedirFinal.style.pointerEvents = "auto";
+        btnPedirFinal.style.fontSize = "1.1em";
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -241,6 +253,13 @@
             attributes: true, 
             attributeFilter: ['class'] 
         });
+        
+        // Observador extra para que el botón se actualice si el GPS cambia a verde
+        const observerGps = new MutationObserver(verificarEstadoGlobal);
+        const puntoGps = document.getElementById('puntoGps');
+        if(puntoGps) {
+            observerGps.observe(puntoGps, { attributes: true, attributeFilter: ['class'] });
+        }
     });
 </script>
 
@@ -273,14 +292,13 @@
     };
 
     window.onload = () => {
-        // --- ACTIVADOR DE APP (PWA) ---
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
                 .then(() => console.log("Servicio de App Activo"))
                 .catch(err => console.log("Error al activar App", err));
         }
 
-        obtenerGPS();
+        obtenerGPS(); // Se activa solo al cargar
         cargarConfig();
         vigilarRepartidores();
 
@@ -289,7 +307,7 @@
         document.getElementById('nombreCli').value = savedNom;
         document.getElementById('telCli').value = savedTel;
 
-        document.getElementById('dirCli').placeholder = "Ayúdanos a encontrarte Ej: (casa color amarillo, puerta (portón) negro frente a X local)";
+        document.getElementById('dirCli').placeholder = "Ayúdanos a encontrarte Ej: (casa color amarillo, puerta negro frente a X local)";
 
         const savedRepartidor = localStorage.getItem('ant_tel_repartidor');
         if(savedRepartidor) autoVerificar(savedRepartidor);
@@ -301,40 +319,21 @@
        .where("disponible", "==", true)
        .onSnapshot(snap => {
                 const aviso = document.getElementById('avisoNoRepartidores');
-                const btnPedir = document.getElementById('btnPedirFinal');
                 const statusTag = document.getElementById('statusHorario');
 
                 if (tiendaAbierta) {
                     if (snap.empty) {
-                        statusTag.innerText = "🟡 PAUSADO - Todos nuestros repartidores estan ocupados haciendo pedidos";
+                        statusTag.innerText = "🟡 PAUSADO - Nuestros repartidoes están atendiendo pedidos en este momento";
                         statusTag.className = "horario-tag pausado";
+                        if(aviso) aviso.classList.remove('hidden');
                     } else {
                         statusTag.innerText = "🟢 ABIERTO";
                         statusTag.className = "horario-tag abierto";
+                        if(aviso) aviso.classList.add('hidden');
                     }
                 }
-
-                if (snap.empty) {
-                    if(aviso) aviso.classList.remove('hidden');
-                    if(btnPedir) {
-                        btnPedir.disabled = true;
-                        btnPedir.innerText = "🚫 NO HAY REPARTIDORES, Intente nuevamente en 15 minutos";
-                        btnPedir.style.background = "#95a5a6";
-                    }
-                } else {
-                    if(aviso) aviso.classList.add('hidden');
-                    if(btnPedir) {
-                        if(!coordsCliente) {
-                            btnPedir.disabled = true;
-                            btnPedir.innerText = "⚠️ PORFAVOR ACTIVA TU GPS PARA SABER DÓNDE LLEVAR TU PEDIDO";
-                            btnPedir.style.background = "#ccc";
-                        } else if(tiendaAbierta) {
-                            btnPedir.disabled = false;
-                            btnPedir.innerText = "🚀 ENVIAR SOLICITUD";
-                            btnPedir.style.background = "#e67e22";
-                        }
-                    }
-                }
+                // Llamamos a la prioridad del botón
+                if(typeof verificarEstadoGlobal === "function") verificarEstadoGlobal();
             });
     }
 
@@ -346,7 +345,7 @@
                 const statusTag = document.getElementById('statusHorario');
 
                 if (!tiendaAbierta) {
-                    statusTag.innerText = "🔴 CERRADO";
+                    statusTag.innerText = "🔴 CERRADO, INTENTE NUEVAMENTE EN OTRA OCASIÓN";
                     statusTag.className = "horario-tag cerrado";
                 }
 
@@ -374,10 +373,12 @@
                 if(datos.ejemploEmpleo) ejemplosAdmin.EMPLEO = datos.ejemploEmpleo;
                 if(datos.ejemploOtro) ejemplosAdmin.OTRO = datos.ejemploOtro;
                 actualizarPlaceholder();
+                if(typeof verificarEstadoGlobal === "function") verificarEstadoGlobal();
             }
         });
     }
 
+    // --- FUNCIONES DE VISTA Y LOGIN (SIN CAMBIOS) ---
     function seleccionarServicio(tipo) {
         servicioSeleccionado = tipo;
         document.querySelectorAll('.btn-servicio').forEach(btn => btn.classList.remove('activo'));
@@ -440,7 +441,7 @@
 
     function actualizarBotonEstado(disponible) {
         const btn = document.getElementById('btnStatusRepartidor');
-        btn.innerText = disponible? "🟢 ESTÁS ACTIVO (Recibiendo pedidos)" : "🔴 ESTÁS INACTIVO";
+        btn.innerText = disponible? "🟢 ESTÁS ACTIVO (Recibiendo pedidos)" : "🔴 ESTÁS INACTIVO (No recibes pedidos en este estado)";
         btn.style.background = disponible? "#2ecc71" : "#e74c3c";
         btn.style.color = "white";
     }
@@ -478,69 +479,50 @@
         });
     }
 
-    // ===== GPS MEJORADO CON BOTÓN PARA GENTE QUE NO SABE =====
+    // ===== GPS AUTOMÁTICO (CORREGIDO) =====
     function obtenerGPS() {
         if (!navigator.geolocation) {
-            mostrarErrorGPS("Tu navegador no soporta GPS", "Usa Chrome o Safari actualizado");
+            mostrarErrorGPS("Tu navegador no soporta GPS", "Usa Chrome");
             return;
         }
 
-        document.getElementById('avisoEsperaGPS').innerHTML = `
-            <button onclick="forzarPermisoGPS()" style="background:#3498db;color:white;border:none;padding:15px;border-radius:12px;width:100%;font-size:1em;font-weight:bold;cursor:pointer;">
-                📍 TOCA AQUÍ PARA ACTIVAR TU UBICACIÓN
-            </button>
-            <p style="font-size:0.8em;margin-top:10px;color:#555;">Si ya diste permiso, espera 15 segundos al aire libre</p>
-        `;
-        document.getElementById('avisoEsperaGPS').onclick = null;
-
-        navigator.geolocation.getCurrentPosition((pos) => {
-            actualizarCoordenadas(pos);
-
-            navigator.geolocation.watchPosition((pos) => {
-                if (!coordsCliente || pos.coords.accuracy < coordsCliente.accuracy) {
-                    actualizarCoordenadas(pos);
-                }
-            }, (error) => {
-                console.log("Error watchPosition:", error);
-            }, {
-                enableHighAccuracy: true,
-                timeout: 20000,
-                maximumAge: 0
-            });
-
+        // Activamos el vigilante de inmediato
+        navigator.geolocation.watchPosition((pos) => {
+            // Si no tenemos coordenadas o las nuevas son más precisas, actualizamos
+            if (!coordsCliente || pos.coords.accuracy <= coordsCliente.accuracy) {
+                actualizarCoordenadas(pos);
+            }
         }, (error) => {
-            console.log("Error GPS inicial:", error);
+            console.log("Esperando señal GPS...", error.code);
             if (error.code === 1) {
-                mostrarErrorGPS("❌ Permiso de GPS Denegado", "Toca el botón y acepta el permiso cuando el navegador pregunte");
-            } else if (error.code === 2) {
-                mostrarErrorGPS("📍 GPS Apagado", "Activa la Ubicación en los ajustes de tu celular y toca el botón");
-            } else if (error.code === 3) {
-                mostrarErrorGPS("⏳ No encontramos tu ubicación", "Sal al aire libre o cerca de una ventana y toca el botón");
+                mostrarErrorGPS("❌ Permiso Denegado", "Acepta el permiso de ubicación");
+            } else {
+                // Si es error 2 o 3, solo mostramos que está buscando
+                document.getElementById('textoGps').innerText = "Buscando señal GPS...";
+                document.getElementById('puntoGps').className = "dot dot-rojo";
             }
         }, {
             enableHighAccuracy: true,
-            timeout: 20000,
+            timeout: 10000,
             maximumAge: 0
         });
     }
 
     function forzarPermisoGPS() {
-        document.getElementById('textoGps').innerText = "Buscando señal GPS...";
-        document.getElementById('puntoGps').className = "dot dot-rojo";
-        document.getElementById('avisoEsperaGPS').innerHTML = "⏳ Esperando permiso... <br><b>Acepta cuando el navegador pregunte</b>";
         obtenerGPS();
     }
 
     function mostrarErrorGPS(titulo, instruccion) {
-        document.getElementById('textoGps').innerText = titulo;
-        document.getElementById('puntoGps').className = "dot dot-rojo";
-        document.getElementById('avisoEsperaGPS').innerHTML = `
-            <button onclick="forzarPermisoGPS()" style="background:#e74c3c;color:white;border:none;padding:15px;border-radius:12px;width:100%;font-size:1em;font-weight:bold;cursor:pointer;">
-                ${titulo} - TOCA PARA REINTENTAR
-            </button>
-            <p style="font-size:0.85em;margin-top:10px;color:#333;"><b>${instruccion}</b></p>
-        `;
-        document.getElementById('avisoEsperaGPS').classList.remove('hidden');
+        const aviso = document.getElementById('avisoEsperaGPS');
+        if(aviso) {
+            aviso.innerHTML = `
+                <button onclick="forzarPermisoGPS()" style="background:#e74c3c;color:white;border:none;padding:15px;border-radius:12px;width:100%;font-size:1em;font-weight:bold;">
+                    ${titulo} - TOCA PARA REINTENTAR
+                </button>
+                <p style="font-size:0.85em;margin-top:10px;color:#333;"><b>${instruccion}</b></p>
+            `;
+            aviso.classList.remove('hidden');
+        }
     }
 
     function actualizarCoordenadas(pos) {
@@ -553,20 +535,12 @@
         document.getElementById('indicadorGPS').className = "status-gps gps-listo";
         document.getElementById('textoGps').innerText = `📍 UBICACIÓN LISTA ±${Math.round(coordsCliente.accuracy)}m`;
         document.getElementById('puntoGps').className = "dot dot-verde";
+        
         const avisoEspera = document.getElementById('avisoEsperaGPS');
         if(avisoEspera) avisoEspera.classList.add('hidden');
 
-        db.collection("usuarios")
-       .where("rol", "==", "REPARTIDOR")
-       .where("disponible", "==", true)
-       .get().then(snap => {
-                if(!snap.empty && tiendaAbierta) {
-                    const btn = document.getElementById('btnPedirFinal');
-                    btn.disabled = false;
-                    btn.innerText = "🚀 ENVIAR SOLICITUD";
-                    btn.style.background = "#e67e22";
-                }
-            });
+        // Al recibir coordenadas, refrescamos el estado del botón principal
+        if(typeof verificarEstadoGlobal === "function") verificarEstadoGlobal();
     }
 
     async function lanzarPedido() {
@@ -578,8 +552,8 @@
         if(!nom ||!tel ||!dir ||!desc) return alert("Completa los campos.");
         if(!coordsCliente) return alert("Esperando señal GPS...");
 
-        if(coordsCliente.accuracy > 20) {
-            let continuar = confirm(`Tu GPS tiene ${Math.round(coordsCliente.accuracy)}m de error. ¿Seguro que estás al aire libre? El repartidor podría no encontrarte fácil. ¿Continuar?`);
+        if(coordsCliente.accuracy > 40) {
+            let continuar = confirm(`Tu GPS tiene ${Math.round(coordsCliente.accuracy)}m de error. ¿Seguro que estás al aire libre?`);
             if(!continuar) return;
         }
 
@@ -601,7 +575,7 @@
                 precision: coordsCliente.accuracy
             });
 
-            const mapsLink = `http://maps.google.com/maps?q=${coordsCliente.lat},${coordsCliente.lng}`;
+            const mapsLink = `https://www.google.com/maps?q=${coordsCliente.lat},${coordsCliente.lng}`;
             const msg = `*NUEVO PEDIDO - ANTOJITOS*\n\n*Cliente:* ${nom}\n*Teléfono:* ${tel}\n*Servicio:* ${servicioSeleccionado}\n*Detalle:* ${desc}\n*Dirección:* ${dir}\n*Precisión GPS:* ±${Math.round(coordsCliente.accuracy)}m\n\n*📍 UBICACIÓN EXACTA:* ${mapsLink}`;
 
             window.location.href = `https://wa.me/505${elegido.telefono}?text=${encodeURIComponent(msg)}`;
@@ -614,4 +588,4 @@
             alert("Error de conexión.");
         }
     }
-                    </script>
+</script>
