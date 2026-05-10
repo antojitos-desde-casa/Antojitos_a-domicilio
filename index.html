@@ -228,7 +228,7 @@
             btnPedirFinal.innerText = "🚀 ENVIAR SOLICITUD";
             btnPedirFinal.disabled = false;
         } else {
-            btnPedirFinal.innerText = "⚠️ ACTIVA TU GPS";
+            btnPedirFinal.innerText = "⚠️ POR FAVOR ACTIVA TU GPS";
             btnPedirFinal.disabled = true;
         }
 
@@ -333,7 +333,7 @@
 
                 if (tiendaAbierta) {
                     if (snap.empty) {
-                        statusTag.innerText = "🟡 PAUSADO - No hay repartidores";
+                        statusTag.innerText = "🟡 PAUSADO - Nuestros repartidores están entregando pedidos, intente mas tarde.";
                         statusTag.className = "horario-tag pausado";
                         if(aviso) aviso.classList.remove('hidden');
                     } else {
@@ -449,7 +449,7 @@
 
     function actualizarBotonEstado(disponible) {
         const btn = document.getElementById('btnStatusRepartidor');
-        btn.innerText = disponible? "🟢 ESTÁS ACTIVO (Recibiendo pedidos)" : "🔴 ESTÁS INACTIVO";
+        btn.innerText = disponible? "🟢 ESTÁS ACTIVO (Recibiendo pedidos)" : "🔴 ESTÁS INACTIVO (No recibes pedidos en este estado";
         btn.style.background = disponible? "#2ecc71" : "#e74c3c";
         btn.style.color = "white";
     }
@@ -522,7 +522,7 @@
         }, (error) => {
             console.log("Error GPS:", error.code);
             if (error.code === 1) {
-                mostrarErrorGPS("❌ Permiso Denegado", "Acepta el permiso de ubicación");
+                mostrarErrorGPS("❌ Permiso Denegado", "Activa tu GPS y reintenta ⬆️ nuevamente");
                 if (retryTimer) clearTimeout(retryTimer); // No reintentar si denegó
             } else {
                 document.getElementById('textoGps').innerText = "Buscando señal GPS...";
