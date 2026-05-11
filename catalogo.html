@@ -16,6 +16,7 @@
             --fondo-desc: #f8f9fa;
             --gris-elegante: #fcfcfc;
             --gris-borde: #e0e0e0;
+            --gris-producto: #95a5a6; 
         }
         
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fdfdfd; margin: 0; padding: 10px; padding-bottom: 120px; color: var(--oscuro); overflow-x: hidden; }
@@ -25,10 +26,13 @@
         
         #mensajeBienvenida { font-size: 1em; color: #d35400; background: var(--naranja-claro); font-weight: 700; margin: 10px auto 5px auto; display: inline-block; padding: 8px 15px; line-height: 1.3; border-radius: 10px; border: 1px solid rgba(230, 126, 34, 0.3); }
 
-        /* --- ESTILOS DEL BUSCADOR --- */
-        .search-wrapper { padding: 10px 20px; position: sticky; top: 0; z-index: 101; background: rgba(253, 253, 253, 0.95); backdrop-filter: blur(10px); margin: 0 -10px; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .search-input { width: 100%; padding: 12px 20px; border-radius: 25px; border: 2px solid var(--gris-borde); font-size: 1em; outline: none; transition: border-color 0.3s; box-sizing: border-box; background: #fff; }
+        .header-acciones { display: flex; align-items: center; gap: 10px; padding: 10px 20px; position: sticky; top: 0; z-index: 101; background: rgba(253, 253, 253, 0.95); backdrop-filter: blur(10px); margin: 0 -10px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .search-input { flex: 1; padding: 12px 20px; border-radius: 25px; border: 2px solid var(--gris-borde); font-size: 1em; outline: none; transition: border-color 0.3s; background: #fff; }
         .search-input:focus { border-color: var(--naranja); box-shadow: 0 0 8px rgba(230, 126, 34, 0.2); }
+        
+        .btn-flotante-carrito { position: relative; background: var(--oscuro); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2em; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); flex-shrink: 0; }
+        .badge-carrito { position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 0.75em; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #fff; }
+
         .badge-local { display: inline-block; font-size: 0.65em; background: var(--oscuro); color: #fff; padding: 4px 8px; border-radius: 6px; margin-bottom: 6px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
 
         .tabs-wrapper { position: sticky; top: 64px; background: rgba(253, 253, 253, 0.95); backdrop-filter: blur(10px); z-index: 100; margin: 0 -10px; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
@@ -48,10 +52,14 @@
         .productos-lista { display: none; padding: 15px; background: #fff; }
         .local-card.open .productos-lista { display: block; }
 
-        .producto-item { display: flex; flex-direction: column; padding: 16px; margin-bottom: 12px; background: #fff; border-radius: 18px; border: 1px solid #eee; box-shadow: 0 3px 6px rgba(0,0,0,0.03); }
+        .producto-item { display: flex; flex-direction: column; padding: 16px; margin-bottom: 16px; background: #fff; border-radius: 18px; border: 1px solid #eee; border-left: 8px solid var(--gris-producto); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .prod-superior { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; }
         .prod-info-base b { color: #000; font-size: 1.25em; display: block; font-weight: 800; }
-        .prod-precio { background: var(--naranja); color: #fff; font-weight: 900; font-size: 1.1em; padding: 8px 14px; border-radius: 12px; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.25); white-space: nowrap; }
+        
+        .prod-precio { background: var(--naranja); color: #fff; font-weight: 900; font-size: 1.1em; padding: 8px 14px; border-radius: 12px; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.25); white-space: nowrap; margin-bottom: 10px; display: inline-block; }
+        
+        .btn-add { background: var(--verde); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 1.8em; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); transition: transform 0.1s; flex-shrink: 0; }
+        .btn-add:active { transform: scale(0.9); }
 
         .prod-cuerpo { display: flex; gap: 12px; align-items: flex-start; }
         .prod-desc { flex: 1; font-size: 0.95em; color: #555; background: var(--fondo-desc); padding: 10px 12px; border-radius: 12px; border-left: 3px solid #ddd; white-space: pre-wrap; margin-bottom: 5px; }
@@ -61,17 +69,30 @@
 
         .variantes-titulo { font-size: 0.65em; text-transform: uppercase; color: #d35400; font-weight: 800; margin: 10px 0 6px 5px; letter-spacing: 1px; }
         .contenedor-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-        .chip { background: #fffafa; border: 1.5px solid #edbb99; border-radius: 10px; padding: 6px 12px; font-size: 0.85em; color: #5d4037; font-weight: 700; box-shadow: 0 2px 4px rgba(237, 187, 153, 0.1); }
+        .chip { background: #fffafa; border: 2px solid #edbb99; border-radius: 12px; padding: 8px 14px; font-size: 0.9em; color: #5d4037; font-weight: 700; box-shadow: 0 2px 4px rgba(237, 187, 153, 0.1); cursor: pointer; transition: all 0.2s; }
+        .chip.selected { background: var(--naranja); color: white; border-color: var(--naranja); box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3); }
 
         .msg-cargando { text-align: center; padding: 20px; color: var(--texto-suave); font-style: italic; }
-        .btn-hacer-pedido { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 400px; background: var(--verde); color: white; text-align: center; padding: 18px; border-radius: 18px; font-weight: 900; text-decoration: none; font-size: 1.2em; z-index: 90; box-shadow: 0 8px 20px rgba(46, 204, 113, 0.3); }
-
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); backdrop-filter: blur(5px); align-items: center; justify-content: center; flex-direction: column; }
-        .modal-contenido { max-width: 90%; max-height: 80%; border-radius: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.5); transform: scale(0.8); animation: zoomIn 0.3s forwards; }
-        #caption { color: white; margin-top: 15px; font-weight: 600; font-size: 1.2em; text-align: center; padding: 0 20px; }
-        .cerrar-modal { position: absolute; top: 30px; right: 30px; color: white; font-size: 40px; font-weight: bold; cursor: pointer; line-height: 1; }
         
-        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .btn-hacer-pedido { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 400px; background: var(--verde); color: white; text-align: center; padding: 18px; border-radius: 18px; font-weight: 900; font-size: 1.2em; z-index: 90; box-shadow: 0 8px 20px rgba(46, 204, 113, 0.3); cursor: pointer; border: none; }
+
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); align-items: center; justify-content: center; flex-direction: column; padding: 10px; box-sizing: border-box; }
+        
+        .modal-contenido { width: 100%; max-width: 100vw; max-height: 85vh; border-radius: 10px; object-fit: contain; animation: zoomIn 0.3s forwards; }
+        #caption { color: white; margin-top: 15px; font-weight: 600; font-size: 1.4em; text-align: center; padding: 0 20px; }
+        
+        .cerrar-modal { position: absolute; top: 20px; right: 20px; color: white; font-size: 45px; font-weight: bold; cursor: pointer; background: rgba(50,50,50,0.6); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; z-index: 2001; line-height: 1; }
+        
+        .modal-caja-blanca { background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; max-height: 80vh; animation: zoomIn 0.3s forwards; }
+        .modal-caja-blanca h3 { margin-top: 0; color: var(--oscuro); text-align: center; font-size: 1.5em; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .lista-carrito { flex: 1; overflow-y: auto; padding-right: 5px; margin-bottom: 15px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; font-weight: 600; color: #333; }
+        .btn-eliminar { color: #e74c3c; cursor: pointer; font-size: 1.2em; padding: 5px; background: none; border: none; font-weight: bold; }
+        
+        .btn-seguir { background: #eee; color: #555; padding: 12px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; width: 48%; }
+        .btn-confirmar { background: var(--verde); color: white; padding: 12px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; width: 48%; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); }
+
+        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -82,8 +103,11 @@
     <span id="textoSugerencia" style="font-size: 0.9em; color: var(--texto-suave); display: block; font-style: italic; margin-top: 5px;"></span>
 </header>
 
-<div class="search-wrapper">
+<div class="header-acciones">
     <input type="text" id="buscador" class="search-input" placeholder="🔍 Buscar antojito (ej. pollo, pizza)..." oninput="buscarProducto()">
+    <div class="btn-flotante-carrito" onclick="abrirCarrito()">
+        🛒<div class="badge-carrito" id="cartCount">0</div>
+    </div>
 </div>
 
 <div class="tabs-wrapper" id="contenedorTabs">
@@ -94,14 +118,25 @@
 
 <div id="resultadosBusqueda" style="max-width: 600px; margin: auto; margin-top: 20px; display: none; padding: 0 10px;"></div>
 
-<a href="#" id="btnIrAPedidos" class="btn-hacer-pedido">🛒 HACER PEDIDO</a>
+<button id="btnIrAPedidos" class="btn-hacer-pedido" onclick="abrirCarrito()">🛒 VER MI PEDIDO</button>
 
 <div id="miModal" class="modal" onclick="this.style.display='none'">
     <span class="cerrar-modal">&times;</span>
-    <img class="modal-contenido" id="imgGrande">
+    <img class="modal-contenido" id="imgGrande" onclick="event.stopPropagation()">
     <div id="caption"></div>
 </div>
 
+<div id="modalCarrito" class="modal" style="background-color: rgba(0,0,0,0.6);">
+    <div class="modal-caja-blanca">
+        <h3>Tu Lista de Antojitos</h3>
+        <div id="contenidoListaCarrito" class="lista-carrito">
+        </div>
+        <div style="display: flex; justify-content: space-between; gap: 10px;">
+            <button class="btn-seguir" onclick="cerrarCarrito()">Seguir viendo</button>
+            <button class="btn-confirmar" onclick="confirmarYEnviar()">Confirmar ✅</button>
+        </div>
+    </div>
+</div>
 <script>
     const config = { 
         apiKey: "AIzaSyAxWMSIqoS1ZXgAO3rOIiOMCrAaAZjDiao", 
@@ -115,17 +150,110 @@
     const db = firebase.firestore();
     
     let catAct = "todo";
-    
-    // Variables para el buscador inteligente
     let todosLosProductos = [];
-    let mapaLocales = {}; // Guarda el ID del local y su Nombre
+    let mapaLocales = {}; 
+    let linkDestinoPedido = "#";
+    
+    let carrito = [];
 
     window.onload = () => { 
         cargarConfig(); 
         cargarCats(); 
         cargarLocales(); 
-        cargarTodosLosProductos(); // Cacheamos productos para la búsqueda rápida
+        cargarTodosLosProductos(); 
+        recuperarCarrito(); 
     };
+
+    function selVariante(elem, prodId, variante) {
+        let contenedor = elem.parentElement;
+        contenedor.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+        elem.classList.add('selected');
+        document.getElementById(`prod-item-${prodId}`).setAttribute('data-variante', variante);
+    }
+
+    // --- FUNCIÓN EDITADA CON CANDADO ANTI-SPAM ---
+    function agregarAlCarrito(prodId, nombreProd, localId) {
+        let itemDiv = document.getElementById(`prod-item-${prodId}`);
+        let btn = itemDiv.querySelector('.btn-add');
+
+        // Si el botón ya está en proceso de agregado, ignoramos el click
+        if (btn.disabled) return;
+
+        // Bloqueamos el botón inmediatamente
+        btn.disabled = true;
+
+        let variante = itemDiv.getAttribute('data-variante');
+        let nombreLocal = mapaLocales[localId] || "Local asociado";
+        
+        let item = { 
+            id: prodId, 
+            nombre: nombreProd, 
+            local: nombreLocal, 
+            variante: variante 
+        };
+        
+        carrito.push(item);
+        actualizarBadge();
+        
+        let originalText = btn.innerHTML;
+        btn.innerHTML = "✔";
+        btn.style.background = "#27ae60";
+
+        // Después de 500ms, restauramos el botón y permitimos otro click
+        setTimeout(() => { 
+            btn.innerHTML = originalText; 
+            btn.style.background = "var(--verde)"; 
+            btn.disabled = false; // Aquí liberamos el candado
+        }, 500);
+    }
+
+    function actualizarBadge() {
+        document.getElementById('cartCount').innerText = carrito.length;
+        localStorage.setItem('carritoTemporal', JSON.stringify(carrito)); 
+    }
+
+    function recuperarCarrito() {
+        let guardado = localStorage.getItem('carritoTemporal');
+        if(guardado) { carrito = JSON.parse(guardado); actualizarBadge(); }
+    }
+
+    function abrirCarrito() {
+        const modal = document.getElementById('modalCarrito');
+        const lista = document.getElementById('contenidoListaCarrito');
+        lista.innerHTML = "";
+        
+        if(carrito.length === 0) {
+            lista.innerHTML = "<p style='text-align:center; color:gray;'>Aún no has agregado nada.</p>";
+        } else {
+            carrito.forEach((item, index) => {
+                let txtVariante = item.variante ? `<br><small style="color:#e67e22;">▸ ${item.variante}</small>` : "";
+                lista.innerHTML += `
+                <div class="cart-item">
+                    <div style="line-height: 1.2;">
+                        📦 ${item.nombre} 
+                        ${txtVariante}
+                    </div>
+                    <button class="btn-eliminar" onclick="eliminarDelCarrito(${index})">X</button>
+                </div>`;
+            });
+        }
+        modal.style.display = 'flex';
+    }
+
+    function cerrarCarrito() { document.getElementById('modalCarrito').style.display = 'none'; }
+
+    function eliminarDelCarrito(index) {
+        carrito.splice(index, 1);
+        actualizarBadge();
+        abrirCarrito(); 
+    }
+
+    function confirmarYEnviar() {
+        localStorage.setItem('carritoConfirmado', JSON.stringify(carrito));
+        carrito = [];
+        localStorage.removeItem('carritoTemporal');
+        window.location.href = linkDestinoPedido;
+    }
 
     function abrirImagen(url, nombre) {
         const modal = document.getElementById("miModal");
@@ -140,7 +268,7 @@
         db.collection("configuracion").doc("catalogo").onSnapshot(doc => {
             if(doc.exists) {
                 const d = doc.data();
-                document.getElementById('btnIrAPedidos').href = d.linkPedido || "#";
+                linkDestinoPedido = d.linkPedido || "#";
                 document.getElementById('mensajeBienvenida').innerText = d.mensajeCabecera || "¡Bienvenidos!";
                 document.getElementById('textoSugerencia').innerText = d.textoSugerencia || "";
             }
@@ -161,7 +289,7 @@
         catAct = id;
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         b.classList.add('active');
-        document.getElementById('buscador').value = ""; // Limpia buscador al cambiar pestaña
+        document.getElementById('buscador').value = ""; 
         document.getElementById('resultadosBusqueda').style.display = "none";
         document.getElementById('listaLocales').style.display = "block";
         document.getElementById('contenedorTabs').style.display = "block";
@@ -176,12 +304,12 @@
             container.innerHTML = "";
             snap.forEach(doc => {
                 const l = doc.data();
-                mapaLocales[doc.id] = l.nombre; // Guardamos el nombre para la etiqueta discreta
+                mapaLocales[doc.id] = l.nombre; 
                 container.innerHTML += `
                 <div class="local-card" id="card-${doc.id}">
                     <div class="local-header" onclick="toggleAcc('${doc.id}')">
-                        <span class="local-nombre">${l.emoji || '🏘️'} ${l.nombre}</span>
-                        <span style="color:var(--naranja); font-weight:bold; font-size: 0.8em;">DESCUBRIR ▼</span>
+                        <span class="local-nombre">${l.emoji || '🏠'} ${l.nombre}</span>
+                        <span style="color:var(--naranja); font-weight:bold; font-size: 1.2em;">▼</span>
                     </div>
                     <div id="prod-${doc.id}" class="productos-lista"></div>
                 </div>`;
@@ -206,39 +334,35 @@
         db.collection("productos").where("localId", "==", lId).onSnapshot(snap => {
             box.innerHTML = "";
             if (snap.empty) { box.innerHTML = `<div class="msg-cargando">No hay productos disponibles.</div>`; return; }
-            snap.forEach(doc => renderizarProductoHTML(doc.data(), box, false));
+            snap.forEach(doc => renderizarProductoHTML(doc.data(), doc.id, box, false));
         });
     }
 
-    // --- LÓGICA DEL BUSCADOR INTELIGENTE ---
-    
     function cargarTodosLosProductos() {
-        // Carga todos los productos en memoria para buscar instantáneamente
         db.collection("productos").onSnapshot(snap => {
             todosLosProductos = [];
             snap.forEach(doc => todosLosProductos.push({...doc.data(), id: doc.id}));
         });
     }
 
-    // El "Traductor Fonético"
     function normalizarTexto(texto) {
         if (!texto) return "";
         return texto.toLowerCase()
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quita tildes (á -> a)
-            .replace(/ll/g, "y")  // pollo -> poyo
-            .replace(/i/g, "y")   // poio -> poyo
-            .replace(/v/g, "b")   // vaso -> baso
-            .replace(/z|c/g, "s") // cebolla -> seboya
-            .replace(/h/g, "");   // huevo -> uebo
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
+            .replace(/ll/g, "y")  
+            .replace(/i/g, "y")   
+            .replace(/v/g, "b")   
+            .replace(/z|c/g, "s") 
+            .replace(/h/g, "");   
     }
 
+    // --- BÚSQUEDA SÚPER INTELIGENTE INTEGRADA ---
     function buscarProducto() {
         const query = document.getElementById('buscador').value;
         const mainLista = document.getElementById('listaLocales');
         const resultadosDiv = document.getElementById('resultadosBusqueda');
         const tabsDiv = document.getElementById('contenedorTabs');
 
-        // Si borra la búsqueda, vuelve a la vista normal
         if (query.trim().length < 2) {
             resultadosDiv.style.display = 'none';
             mainLista.style.display = 'block';
@@ -246,7 +370,6 @@
             return;
         }
 
-        // Oculta la lista de locales y pestañas, muestra resultados
         mainLista.style.display = 'none';
         tabsDiv.style.display = 'none';
         resultadosDiv.style.display = 'block';
@@ -254,28 +377,72 @@
 
         const queryNormalizada = normalizarTexto(query);
 
-        // Filtramos usando la "inteligencia" fonética
         const productosFiltrados = todosLosProductos.filter(p => {
             const nombreNorm = normalizarTexto(p.nombre);
-            const descNorm = normalizarTexto(p.descripcion);
-            return nombreNorm.includes(queryNormalizada) || descNorm.includes(queryNormalizada);
+            const descNorm = normalizarTexto(p.descripcion || "");
+            
+            // 1. Coincidencia directa (rápida)
+            if (nombreNorm.includes(queryNormalizada) || descNorm.includes(queryNormalizada)) return true;
+            
+            // 2. Coincidencia difusa (para errores de dedo)
+            const palabrasNombre = nombreNorm.split(" ");
+            return palabrasNombre.some(palabra => {
+                const similitud = calcularSimilitud(palabra, queryNormalizada);
+                return similitud > 0.65; // Tolerancia ajustable (0.65 = 65% de parecido)
+            });
         });
 
         if (productosFiltrados.length === 0) {
-            resultadosDiv.innerHTML = `<div class="msg-cargando">No encontramos "${query}" 😥</div>`;
+            resultadosDiv.innerHTML = `<div class="msg-cargando">No encontramos nada parecido a "${query}" 😥</div>`;
             return;
         }
 
-        // Imprimimos los resultados encontrados
-        productosFiltrados.forEach(p => renderizarProductoHTML(p, resultadosDiv, true));
+        productosFiltrados.forEach(p => renderizarProductoHTML(p, p.id, resultadosDiv, true));
     }
 
-    // Función reutilizable para dibujar un producto (en lista normal o en búsqueda)
-    function renderizarProductoHTML(p, contenedor, esBusqueda) {
+    // Funciones auxiliares para la búsqueda inteligente
+    function calcularSimilitud(s1, s2) {
+        let larga = s1.length < s2.length ? s2 : s1;
+        let corta = s1.length < s2.length ? s1 : s2;
+        if (larga.length === 0) return 1.0;
+        return (larga.length - distanciaEdicion(larga, corta)) / parseFloat(larga.length);
+    }
+
+    function distanciaEdicion(s1, s2) {
+        let costos = [];
+        for (let i = 0; i <= s1.length; i++) {
+            let ultimoValor = i;
+            for (let j = 0; j <= s2.length; j++) {
+                if (i == 0) costos[j] = j;
+                else if (j > 0) {
+                    let nuevoValor = costos[j - 1];
+                    if (s1.charAt(i - 1) != s2.charAt(j - j + j - 1 + 1 - 1)) // ajuste de comparación
+                        if (s1.charAt(i-1) !== s2.charAt(j-1))
+                            nuevoValor = Math.min(Math.min(nuevoValor, ultimoValor), costos[j]) + 1;
+                    costos[j - 1] = ultimoValor;
+                    ultimoValor = nuevoValor;
+                }
+            }
+            if (i > 0) costos[s2.length] = ultimoValor;
+        }
+        return costos[s2.length];
+    }
+
+    function renderizarProductoHTML(p, prodId, contenedor, esBusqueda) {
         let chips = "";
+        let variantePorDefecto = "";
+        
         if(p.variantes){
+            let arrVar = p.variantes.split("-");
+            if(arrVar.length > 0) variantePorDefecto = arrVar[0].trim(); 
+            
             chips = '<div class="variantes-titulo">Marcas/Opciones:</div><div class="contenedor-chips">';
-            p.variantes.split("-").forEach(v => { if(v.trim()) chips += `<div class="chip">${v.trim()}</div>`; });
+            arrVar.forEach((v, index) => { 
+                let val = v.trim();
+                if(val) {
+                    chips += `<div class="chip ${index===0?'selected':''}" onclick="selVariante(this, '${prodId}', '${val}')">${val}</div>`;
+                }
+            });
             chips += '</div>';
         }
 
@@ -286,12 +453,13 @@
         }
 
         contenedor.innerHTML += `
-        <div class="producto-item">
+        <div class="producto-item" id="prod-item-${prodId}" data-variante="${variantePorDefecto}">
             ${etiquetaLocal}
             <div class="prod-superior">
-                <div class="prod-info-base"><b>${p.nombre}</b></div>
-                <div class="prod-precio">${p.precio}</div>
+                <div class="prod-info-base"><b>📦 ${p.nombre}</b></div>
+                <button class="btn-add" onclick="agregarAlCarrito('${prodId}', '${p.nombre}', '${p.localId}')">+</button>
             </div>
+            <div><span class="prod-precio">${p.precio}</span></div>
             <div class="prod-cuerpo">
                 <div style="flex:1">
                     ${p.descripcion ? `<div class="prod-desc">${p.descripcion}</div>` : ''}
@@ -301,6 +469,4 @@
             </div>
         </div>`;
     }
-</script>
-</body>
-</html>
+            </script>    
