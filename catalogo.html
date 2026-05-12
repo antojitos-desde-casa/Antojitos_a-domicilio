@@ -58,8 +58,14 @@
         
         .prod-precio { background: var(--naranja); color: #fff; font-weight: 900; font-size: 1.1em; padding: 8px 14px; border-radius: 12px; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.25); white-space: nowrap; margin-bottom: 10px; display: inline-block; }
         
-        .btn-add { background: var(--verde); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 1.8em; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); transition: transform 0.1s; flex-shrink: 0; }
-        .btn-add:active { transform: scale(0.9); }
+        .btn-add { background: var(--verde); color: white; border: none; border-radius: 12px; width: auto; height: 45px; font-size: 0.95em; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); transition: all 0.2s; flex-shrink: 0; padding: 0 16px; }
+        .btn-add:active { transform: scale(0.95); }
+        .btn-add:disabled { 
+            background: var(--verde); 
+            opacity: 0.45; 
+            box-shadow: none; 
+            cursor: not-allowed;
+        }
 
         .prod-cuerpo { display: flex; gap: 12px; align-items: flex-start; }
         .prod-desc { flex: 1; font-size: 0.95em; color: #555; background: var(--fondo-desc); padding: 10px 12px; border-radius: 12px; border-left: 3px solid #ddd; white-space: pre-wrap; margin-bottom: 5px; }
@@ -67,10 +73,55 @@
         .prod-foto-mini { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; border: 1px solid #eee; flex-shrink: 0; cursor: pointer; transition: transform 0.2s; -webkit-tap-highlight-color: transparent; }
         .prod-foto-mini:active { transform: scale(0.95); }
 
-        .variantes-titulo { font-size: 0.65em; text-transform: uppercase; color: #d35400; font-weight: 800; margin: 10px 0 6px 5px; letter-spacing: 1px; }
+        .variantes-titulo {
+            font-size: 0.8em;
+            color: #5d4037;
+            font-weight: 800;
+            margin: 14px 0 8px 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .variantes-titulo strong {
+            color: var(--naranja);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .variantes-titulo .hint {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--texto-suave);
+            font-style: italic;
+        }
         .contenedor-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-        .chip { background: #fffafa; border: 2px solid #edbb99; border-radius: 12px; padding: 8px 14px; font-size: 0.9em; color: #5d4037; font-weight: 700; box-shadow: 0 2px 4px rgba(237, 187, 153, 0.1); cursor: pointer; transition: all 0.2s; }
-        .chip.selected { background: var(--naranja); color: white; border-color: var(--naranja); box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3); }
+        .chip {
+            background: #fff;
+            border: 2px solid #dfe6e9;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 0.95em;
+            color: #2d3436;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .chip.selected {
+            background: var(--naranja);
+            color: white;
+            border-color: var(--naranja);
+            box-shadow: 0 6px 16px rgba(230, 126, 34, 0.5);
+            transform: scale(1.08);
+            font-weight: 900;
+            padding-left: 35px;
+        }
+        .chip.selected::before {
+            content: '✔';
+            position: absolute;
+            left: 12px;
+            font-size: 1.1em;
+        }
 
         .msg-cargando { text-align: center; padding: 20px; color: var(--texto-suave); font-style: italic; }
         
@@ -182,42 +233,102 @@
     };
 
     function selVariante(elem, prodId, variante) {
+        let itemDiv = document.getElementById(`prod-item-${prodId}`);
         let contenedor = elem.parentElement;
+        let precioSpan = itemDiv.querySelector('.prod-precio');
+        let precioBase = itemDiv.getAttribute('data-precio-base');
+        let btn = itemDiv.querySelector('.btn-add');
+
+        // Si ya está seleccionada, deseleccionar
+        if(elem.classList.contains('selected')) {
+            elem.classList.remove('selected');
+            itemDiv.setAttribute('data-variante', '');
+            itemDiv.setAttribute('data-precio-seleccionado', '');
+            precioSpan.innerHTML = precioBase;
+            btn.disabled = true;
+            btn.innerHTML = "Agregar al pedido";
+            btn.style.opacity = '0.6';
+            btn.style.background = '#9ccc65';
+            btn.style.cursor = 'not-allowed';
+            btn.style.filter = 'saturate(0.4)';
+            return;
+        }
+
+        // Seleccionar nueva
         contenedor.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
         elem.classList.add('selected');
-        document.getElementById(`prod-item-${prodId}`).setAttribute('data-variante', variante);
+        itemDiv.setAttribute('data-variante', variante);
+        itemDiv.setAttribute('data-precio-seleccionado', elem.innerText);
+
+        // Copia el texto completo del chip "Doña Maria C$25"
+        precioSpan.innerHTML = elem.innerText;
+
+        // Cambia el texto del botón
+        btn.innerHTML = `Agregar ${elem.innerText} al pedido`;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.background = 'var(--verde)';
+        btn.style.cursor = 'pointer';
+        btn.style.filter = 'saturate(1)';
+    }
+
+    function extraerPrecio(texto) {
+        if(!texto) return 0;
+        let match = texto.match(/C\$(\d+(?:\.\d+)?)/);
+        return match? parseFloat(match[1]) : 0;
     }
 
     function agregarAlCarrito(prodId, nombreProd, localId) {
         let itemDiv = document.getElementById(`prod-item-${prodId}`);
         let btn = itemDiv.querySelector('.btn-add');
+        let tieneVariantes = itemDiv.getAttribute('data-tiene-variantes') === 'true';
+        let variante = itemDiv.getAttribute('data-variante');
+        let precioTexto = itemDiv.getAttribute('data-precio-seleccionado') || itemDiv.getAttribute('data-precio-base');
+        let precio = extraerPrecio(precioTexto);
+
+        // Si tiene variantes y no eligió ninguna, no dejar agregar
+        if(tieneVariantes &&!variante) {
+            btn.innerHTML = "Elige una opción";
+            btn.style.background = "#e74c3c";
+            setTimeout(() => {
+                btn.innerHTML = "Agregar al pedido";
+                btn.style.background = '#9ccc65';
+            }, 1500);
+            return;
+        }
 
         if (btn.disabled) return;
-
         btn.disabled = true;
 
-        let variante = itemDiv.getAttribute('data-variante');
         let nombreLocal = mapaLocales[localId] || "Local asociado";
 
         let item = {
             id: prodId,
             nombre: nombreProd,
             local: nombreLocal,
-            variante: variante
+            variante: variante,
+            precio: precio,
+            precioTexto: precioTexto
         };
 
         carrito.push(item);
         actualizarBadge();
 
         let originalText = btn.innerHTML;
-        btn.innerHTML = "✔";
+        btn.innerHTML = "✔ Agregado";
         btn.style.background = "#27ae60";
 
         setTimeout(() => {
             btn.innerHTML = originalText;
             btn.style.background = "var(--verde)";
-            btn.disabled = false;
-        }, 500);
+            btn.disabled = tieneVariantes &&!itemDiv.getAttribute('data-variante')? true : false;
+            if(btn.disabled) {
+                btn.innerHTML = "Agregar al pedido";
+                btn.style.opacity = '0.6';
+                btn.style.background = '#9ccc65';
+                btn.style.filter = 'saturate(0.4)';
+            }
+        }, 600);
     }
 
     function actualizarBadge() {
@@ -238,22 +349,37 @@
         if(carrito.length === 0) {
             lista.innerHTML = "<p style='text-align:center; color:gray;'>Aún no has agregado nada.</p>";
         } else {
+            let total = 0;
             carrito.forEach((item, index) => {
+                total += item.precio || 0;
                 let txtVariante = item.variante? `<br><small style="color:#e67e22;">▸ ${item.variante}</small>` : "";
+                let txtPrecio = item.precioTexto? `<br><small style="color:#27ae60; font-weight:600;">${item.precioTexto}</small>` : "";
                 lista.innerHTML += `
                 <div class="cart-item">
-                    <div style="line-height: 1.2;">
+                    <div style="line-height: 1.3; flex: 1;">
                         📦 ${item.nombre}
                         ${txtVariante}
+                        ${txtPrecio}
                     </div>
-                    <button class="btn-eliminar" onclick="eliminarDelCarrito(${index})">X</button>
+                    <button class="btn-eliminar" style="font-size: 1.4em; padding: 4px 10px;" onclick="eliminarDelCarrito(${index})">🗑️</button>
                 </div>`;
             });
+
+            // Agregar total y nota amarilla de envío
+            lista.innerHTML += `
+            <div style="border-top: 2px dashed #ddd; margin-top: 15px; padding-top: 15px;">
+                <div style="display: flex; justify-content: space-between; font-size: 1.1em; font-weight: bold; margin-bottom: 8px;">
+                    <span>Total productos:</span>
+                    <span style="color: var(--verde);">C$${total.toFixed(2)}</span>
+                </div>
+                <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; border-radius: 6px; font-size: 0.85em; color: #856404; line-height: 1.4;">
+                    ⚠️ <strong>Nota:</strong> El costo de envío no está incluido.El repartidor te lo confirmara mediante WhatsApp.
+                </div>
+            </div>`;
         }
         modal.style.display = 'flex';
     }
-
-    function cerrarCarrito() { document.getElementById('modalCarrito').style.display = 'none'; }
+   function cerrarCarrito() { document.getElementById('modalCarrito').style.display = 'none'; }
 
     function eliminarDelCarrito(index) {
         carrito.splice(index, 1);
@@ -434,12 +560,12 @@
     function normalizarTexto(texto) {
         if (!texto) return "";
         return texto.toLowerCase()
-       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-       .replace(/ll/g, "y")
-       .replace(/i/g, "y")
-       .replace(/v/g, "b")
-       .replace(/z|c/g, "s")
-       .replace(/h/g, "");
+.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+.replace(/ll/g, "y")
+.replace(/i/g, "y")
+.replace(/v/g, "b")
+.replace(/z|c/g, "s")
+.replace(/h/g, "");
     }
 
     function buscarProducto() {
@@ -511,20 +637,25 @@
 
     function renderizarProductoHTML(p, prodId, contenedor, esBusqueda) {
         let chips = "";
-        let variantePorDefecto = "";
+        let tieneVariantes = false;
 
         if(p.variantes){
+            tieneVariantes = true;
             let arrVar = p.variantes.split("-");
-            if(arrVar.length > 0) variantePorDefecto = arrVar[0].trim();
 
-            chips = '<div class="variantes-titulo">Marcas/Opciones:</div><div class="contenedor-chips">';
-            arrVar.forEach((v, index) => {
+            chips = '<div class="variantes-titulo"><strong>ELIGE UNA OPCIÓN</strong></div><div class="contenedor-chips">';
+            arrVar.forEach((v) => {
                 let val = v.trim();
-                if(val) {
-                    chips += `<div class="chip ${index===0?'selected':''}" onclick="selVariante(this, '${prodId}', '${val}')">${val}</div>`;
+                let partes = val.split("|");
+                let nombreVar = partes[0].trim();
+                let precioVar = partes[1]? partes[1].trim() : '';
+
+                if(nombreVar) {
+                    let textoChip = precioVar? `${nombreVar} ${precioVar}` : nombreVar;
+                    chips += `<div class="chip" data-precio="${precioVar}" onclick="selVariante(this, '${prodId}', '${nombreVar}')">${textoChip}</div>`;
                 }
             });
-            chips += '</div>';
+            chips += '</div><div style="font-size: 0.78em; color: #636e72; margin: 8px 0 0 5px; font-weight: 600;">* Solo puedes seleccionar una opción por pedido</div>';
         }
 
         let etiquetaLocal = "";
@@ -536,21 +667,28 @@
         const urlMiniatura = p.urlImagen || '';
         const urlParaModal = p.urlImagenHD || p.urlImagen || '';
 
+        // Botón verde grisáceo desactivado al inicio + wrap para texto largo
+        let btnStyle = tieneVariantes? 'opacity: 0.6; cursor: not-allowed; background: #9ccc65; filter: saturate(0.4);' : '';
+        let btnDisabled = tieneVariantes? 'disabled' : '';
+        let btnText = 'Agregar al pedido';
+
         contenedor.innerHTML += `
-        <div class="producto-item" id="prod-item-${prodId}" data-variante="${variantePorDefecto}">
+        <div class="producto-item" id="prod-item-${prodId}" data-variante="" data-precio-base="${p.precio}" data-precio-seleccionado="" data-tiene-variantes="${tieneVariantes}">
             ${etiquetaLocal}
-            <div class="prod-superior">
-                <div class="prod-info-base"><b>📦 ${p.nombre}</b></div>
-                <button class="btn-add" onclick="agregarAlCarrito('${prodId}', '${p.nombre}', '${p.localId}')">+</button>
+            <div class="prod-info-base" style="margin-bottom: 8px;">
+                <b>📦 ${p.nombre}</b>
+                ${p.descripcion? `<div class="prod-desc" style="margin-top: 8px; background: var(--naranja-claro); border-left: 4px solid var(--naranja); font-weight: 600; color: #5d4037; line-height: 1.4;">🍴 ${p.descripcion}</div>` : ''}
             </div>
-            <div><span class="prod-precio">${p.precio}</span></div>
+            <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;">
+                <span class="prod-precio" style="margin-bottom: 0; flex-shrink: 0;">${p.precio}</span>
+                <button class="btn-add" style="width: auto; padding: 8px 16px; border-radius: 12px; font-size: 0.9em; min-height: 45px; height: auto; line-height: 1.2; text-align: center; white-space: normal; word-break: break-word; flex: 1; ${btnStyle}" ${btnDisabled} onclick="agregarAlCarrito('${prodId}', '${p.nombre}', '${p.localId}')">${btnText}</button>
+            </div>
             <div class="prod-cuerpo">
                 <div style="flex:1">
-                    ${p.descripcion? `<div class="prod-desc">${p.descripcion}</div>` : ''}
                     ${chips}
                 </div>
                 ${urlMiniatura? `<img src="${urlMiniatura}" class="prod-foto-mini" alt="${p.nombre}" onclick="abrirImagen('${urlParaModal}', '${p.nombre}')">` : ''}
             </div>
         </div>`;
     }
-</script>
+</script> 
