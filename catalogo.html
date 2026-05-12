@@ -73,6 +73,53 @@
         .prod-foto-mini { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; border: 1px solid #eee; flex-shrink: 0; cursor: pointer; transition: transform 0.2s; -webkit-tap-highlight-color: transparent; }
         .prod-foto-mini:active { transform: scale(0.95); }
 
+        /* --- ESTILOS MEJORADOS PARA MÁXIMA VISIBILIDAD EN DETALLES --- */
+        .grupo-local-carrito {
+            background: #fdfdfd;
+            border: 1.5px solid #f0f0f0;
+            border-radius: 15px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+        .local-titulo-carrito {
+            font-size: 0.95em;
+            font-weight: 800;
+            color: var(--naranja);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .detalles-pedido-area {
+            width: 100%;
+            border: 2px solid #ccc; /* Borde más marcado */
+            border-radius: 12px;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 1.05em; /* Texto más grande cuando escriben */
+            color: #000; /* Letra negra al escribir */
+            resize: none;
+            margin-top: 10px;
+            background: #fff;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .detalles-pedido-area:focus {
+            border-color: var(--naranja);
+            box-shadow: 0 0 8px rgba(230, 126, 34, 0.2);
+        }
+
+        /* CAMBIO CLAVE: Placeholder mucho más visible y negrito */
+        .detalles-pedido-area::placeholder {
+            color: #2d3436 !important; /* Gris oscuro casi negro */
+            font-weight: 700 !important; /* Negrita */
+            font-size: 0.95em; /* Tamaño legible */
+            opacity: 1; /* Asegura que no se vea transparente */
+            font-style: normal; /* Menos cursiva para más claridad */
+        }
+        /* -------------------------------------------------------- */
+
         .variantes-titulo {
             font-size: 0.8em;
             color: #5d4037;
@@ -146,10 +193,10 @@
         
         .cerrar-modal { position: absolute; top: 20px; right: 20px; color: white; font-size: 45px; font-weight: bold; cursor: pointer; background: rgba(50,50,50,0.6); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; z-index: 2001; line-height: 1; }
         
-        .modal-caja-blanca { background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; max-height: 80vh; animation: zoomIn 0.3s forwards; }
+        .modal-caja-blanca { background: white; width: 95%; max-width: 420px; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; max-height: 90vh; animation: zoomIn 0.3s forwards; }
         .modal-caja-blanca h3 { margin-top: 0; color: var(--oscuro); text-align: center; font-size: 1.5em; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .lista-carrito { flex: 1; overflow-y: auto; padding-right: 5px; margin-bottom: 15px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; font-weight: 600; color: #333; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f9f9f9; font-weight: 600; color: #333; font-size: 0.9em; }
         .btn-eliminar { color: #e74c3c; cursor: pointer; font-size: 1.2em; padding: 5px; background: none; border: none; font-weight: bold; }
         
         .btn-seguir { background: #eee; color: #555; padding: 12px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; width: 48%; }
@@ -181,7 +228,7 @@
 
 <div id="resultadosBusqueda" style="max-width: 600px; margin: auto; margin-top: 20px; display: none; padding: 0 10px;"></div>
 
-<button id="btnIrAPedidos" class="btn-hacer-pedido" onclick="abrirCarrito()">🛒 VER MI PEDIDO</button>
+<button id="btnIrAPedidos" class="btn-hacer-pedido" onclick="manejadorBotonPrincipal()">🛒 HACER MI PEDIDO</button>
 
 <div id="miModal" class="modal" onclick="cerrarModalImagen()">
     <span class="cerrar-modal">&times;</span>
@@ -196,11 +243,11 @@
         </div>
         <div style="display: flex; justify-content: space-between; gap: 10px;">
             <button class="btn-seguir" onclick="cerrarCarrito()">Seguir viendo</button>
-            <button class="btn-confirmar" onclick="confirmarYEnviar()">Confirmar ✅</button>
+            <button id="btnConfirmarCarrito" class="btn-confirmar" onclick="confirmarYEnviar()">Confirmar ✅</button>
         </div>
     </div>
 </div>
-<script>
+    <script>
     const config = {
         apiKey: "AIzaSyAxWMSIqoS1ZXgAO3rOIiOMCrAaAZjDiao",
         authDomain: "antojitos-pueblo-nuevo.firebaseapp.com",
@@ -218,6 +265,7 @@
     let linkDestinoPedido = "#";
 
     let carrito = [];
+    let notasPorLocal = {}; // Objeto para guardar lo que escribas en cada local
 
     // Variables para el zoom
     let scale = 1;
@@ -232,6 +280,17 @@
         initZoomListeners();
     };
 
+    // --- NUEVA LÓGICA DE BOTÓN INTELIGENTE ---
+    function manejadorBotonPrincipal() {
+        if (carrito.length > 0) {
+            abrirCarrito();
+        } else {
+            if(linkDestinoPedido !== "#") {
+                window.location.href = linkDestinoPedido;
+            }
+        }
+    }
+
     function selVariante(elem, prodId, variante) {
         let itemDiv = document.getElementById(`prod-item-${prodId}`);
         let contenedor = elem.parentElement;
@@ -239,7 +298,6 @@
         let precioBase = itemDiv.getAttribute('data-precio-base');
         let btn = itemDiv.querySelector('.btn-add');
 
-        // Si ya está seleccionada, deseleccionar
         if(elem.classList.contains('selected')) {
             elem.classList.remove('selected');
             itemDiv.setAttribute('data-variante', '');
@@ -254,16 +312,12 @@
             return;
         }
 
-        // Seleccionar nueva
         contenedor.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
         elem.classList.add('selected');
         itemDiv.setAttribute('data-variante', variante);
         itemDiv.setAttribute('data-precio-seleccionado', elem.innerText);
 
-        // Copia el texto completo del chip "Doña Maria C$25"
         precioSpan.innerHTML = elem.innerText;
-
-        // Cambia el texto del botón
         btn.innerHTML = `Agregar ${elem.innerText} al pedido`;
         btn.disabled = false;
         btn.style.opacity = '1';
@@ -286,8 +340,7 @@
         let precioTexto = itemDiv.getAttribute('data-precio-seleccionado') || itemDiv.getAttribute('data-precio-base');
         let precio = extraerPrecio(precioTexto);
 
-        // Si tiene variantes y no eligió ninguna, no dejar agregar
-        if(tieneVariantes &&!variante) {
+        if(tieneVariantes && !variante) {
             btn.innerHTML = "Elige una opción";
             btn.style.background = "#e74c3c";
             setTimeout(() => {
@@ -306,6 +359,7 @@
             id: prodId,
             nombre: nombreProd,
             local: nombreLocal,
+            localId: localId,
             variante: variante,
             precio: precio,
             precioTexto: precioTexto
@@ -321,7 +375,7 @@
         setTimeout(() => {
             btn.innerHTML = originalText;
             btn.style.background = "var(--verde)";
-            btn.disabled = tieneVariantes &&!itemDiv.getAttribute('data-variante')? true : false;
+            btn.disabled = tieneVariantes && !itemDiv.getAttribute('data-variante')? true : false;
             if(btn.disabled) {
                 btn.innerHTML = "Agregar al pedido";
                 btn.style.opacity = '0.6';
@@ -332,13 +386,33 @@
     }
 
     function actualizarBadge() {
-        document.getElementById('cartCount').innerText = carrito.length;
+        const count = carrito.length;
+        document.getElementById('cartCount').innerText = count;
         localStorage.setItem('carritoTemporal', JSON.stringify(carrito));
+
+        const btnPrincipal = document.getElementById('btnIrAPedidos');
+        const btnConfirmar = document.getElementById('btnConfirmarCarrito');
+
+        if (count > 0) {
+            btnPrincipal.innerHTML = "🛒 VER MI PEDIDO";
+            if(btnConfirmar) btnConfirmar.innerHTML = "Confirmar mi pedido ✅";
+        } else {
+            btnPrincipal.innerHTML = "🛒 HACER MI PEDIDO";
+            if(btnConfirmar) btnConfirmar.innerHTML = "Confirmar ✅";
+        }
     }
 
     function recuperarCarrito() {
         let guardado = localStorage.getItem('carritoTemporal');
-        if(guardado) { carrito = JSON.parse(guardado); actualizarBadge(); }
+        if(guardado) { 
+            carrito = JSON.parse(guardado); 
+            actualizarBadge(); 
+        }
+    }
+
+    // Nueva función para capturar el texto del local
+    function guardarNota(localNombre, valor) {
+        notasPorLocal[localNombre] = valor;
     }
 
     function abrirCarrito() {
@@ -349,49 +423,134 @@
         if(carrito.length === 0) {
             lista.innerHTML = "<p style='text-align:center; color:gray;'>Aún no has agregado nada.</p>";
         } else {
-            let total = 0;
-            carrito.forEach((item, index) => {
-                total += item.precio || 0;
-                let txtVariante = item.variante? `<br><small style="color:#e67e22;">▸ ${item.variante}</small>` : "";
-                let txtPrecio = item.precioTexto? `<br><small style="color:#27ae60; font-weight:600;">${item.precioTexto}</small>` : "";
-                lista.innerHTML += `
-                <div class="cart-item">
-                    <div style="line-height: 1.3; flex: 1;">
-                        📦 ${item.nombre}
-                        ${txtVariante}
-                        ${txtPrecio}
-                    </div>
-                    <button class="btn-eliminar" style="font-size: 1.4em; padding: 4px 10px;" onclick="eliminarDelCarrito(${index})">🗑️</button>
-                </div>`;
-            });
+            let totalGeneral = 0;
+            
+            // 1. Agrupar productos por Local
+            const grupos = carrito.reduce((acc, item) => {
+                if (!acc[item.local]) acc[item.local] = [];
+                acc[item.local].push(item);
+                return acc;
+            }, {});
 
-            // Agregar total y nota amarilla de envío
+            // 2. Renderizar cada grupo
+            for (const local in grupos) {
+                let htmlGrupo = `<div class="grupo-local-carrito">
+                    <div class="local-titulo-carrito">📍 ${local}</div>`;
+                
+                grupos[local].forEach((item) => {
+                    totalGeneral += item.precio || 0;
+                    // Buscamos el índice real en el array original para eliminarlo correctamente
+                    const realIndex = carrito.indexOf(item);
+                    
+                    let txtVariante = item.variante? `<br><small style="color:#e67e22;">▸ ${item.variante}</small>` : "";
+                    let txtPrecio = item.precioTexto? `<br><small style="color:#27ae60; font-weight:600;">${item.precioTexto}</small>` : "";
+                    
+                    htmlGrupo += `
+                    <div class="cart-item">
+                        <div style="line-height: 1.3; flex: 1;">
+                            📦 ${item.nombre}
+                            ${txtVariante}
+                            ${txtPrecio}
+                        </div>
+                        <button class="btn-eliminar" onclick="eliminarDelCarrito(${realIndex})">🗑️</button>
+                    </div>`;
+                });
+
+                // 3. Agregar el Textarea de detalles para este local
+                const notaActual = notasPorLocal[local] || "";
+                htmlGrupo += `
+                    <textarea class="detalles-pedido-area" 
+                        placeholder="Escribe los detalles de tu pedido. Ejemplo: sin ensalada, sin salsa y con chile" 
+                        oninput="guardarNota('${local}', this.value)">${notaActual}</textarea>
+                </div>`;
+                
+                lista.innerHTML += htmlGrupo;
+            }
+
             lista.innerHTML += `
             <div style="border-top: 2px dashed #ddd; margin-top: 15px; padding-top: 15px;">
                 <div style="display: flex; justify-content: space-between; font-size: 1.1em; font-weight: bold; margin-bottom: 8px;">
                     <span>Total productos:</span>
-                    <span style="color: var(--verde);">C$${total.toFixed(2)}</span>
+                    <span style="color: var(--verde);">C$${totalGeneral.toFixed(2)}</span>
                 </div>
                 <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; border-radius: 6px; font-size: 0.85em; color: #856404; line-height: 1.4;">
-                    ⚠️ <strong>Nota:</strong> El costo de envío no está incluido.El repartidor te lo confirmara mediante WhatsApp.
+                    ⚠️ <strong>Nota:</strong> El costo de envío no está incluido. El repartidor te lo confirmará mediante WhatsApp.
                 </div>
             </div>`;
         }
         modal.style.display = 'flex';
     }
-   function cerrarCarrito() { document.getElementById('modalCarrito').style.display = 'none'; }
+function cerrarCarrito() { 
+        document.getElementById('modalCarrito').style.display = 'none'; 
+    }
 
     function eliminarDelCarrito(index) {
         carrito.splice(index, 1);
-        actualizarBadge();
+        actualizarBadge(); 
         abrirCarrito();
     }
 
+    // --- FUNCIÓN CON LINK CORREGIDO ---
     function confirmarYEnviar() {
+        if(carrito.length === 0) return; 
+
+        let textoWhatsApp = "¡Hola! Quisiera realizar el siguiente pedido:\n\n";
+        let totalGeneral = 0;
+
+        const grupos = carrito.reduce((acc, item) => {
+            if (!acc[item.local]) acc[item.local] = [];
+            acc[item.local].push(item);
+            return acc;
+        }, {});
+
+        for (const local in grupos) {
+            textoWhatsApp += `📍 *LOCAL: ${local.toUpperCase()}*\n`;
+            grupos[local].forEach(item => {
+                let varTxt = item.variante ? ` (${item.variante})` : "";
+                textoWhatsApp += `• ${item.nombre}${varTxt} - ${item.precioTexto}\n`;
+                totalGeneral += item.precio || 0;
+            });
+
+            if (typeof notasPorLocal !== 'undefined' && notasPorLocal[local]) {
+                textoWhatsApp += `📝 *Detalles:* _${notasPorLocal[local]}_\n`;
+            }
+            textoWhatsApp += "\n";
+        }
+
+        textoWhatsApp += `💰 *TOTAL PRODUCTOS:* C$${totalGeneral.toFixed(2)}\n`;
+        textoWhatsApp += "🛵 _(El costo de envío se coordina por aquí)_";
+
+        const mensajeFinal = encodeURIComponent(textoWhatsApp);
+        
+        // CORRECCIÓN DEL LINK:
+        // Limpiamos el link de Firebase de cualquier parámetro previo y aseguramos el formato correcto
+        let baseWA = linkDestinoPedido.split('?')[0]; 
+        if (baseWA.includes("wa.me/")) {
+            baseWA = baseWA.replace("wa.me/", "api.whatsapp.com/send?phone=");
+        }
+        
+        // Verificamos si ya tiene el signo '?' para saber qué conector usar
+        const conector = baseWA.includes("?") ? "&" : "?";
+        const linkCompleto = `${baseWA}${conector}text=${mensajeFinal}`;
+
+        // --- SOLUCIÓN: ATRAPAMOS LA DESCRIPCIÓN PARA LA PÁGINA DE PEDIDOS ---
+        let notasAsignadas = {};
+        carrito.forEach(item => {
+            if (typeof notasPorLocal !== 'undefined' && notasPorLocal[item.local] && !notasAsignadas[item.local]) {
+                // Guardamos la nota dentro del producto para que el cerebro de la app la pueda leer
+                item.notas = notasPorLocal[item.local].trim();
+                notasAsignadas[item.local] = true; // Evitamos que la misma nota se repita por cada producto del local
+            }
+        });
+        // --------------------------------------------------------------------
+
         localStorage.setItem('carritoConfirmado', JSON.stringify(carrito));
         carrito = [];
+        if (typeof notasPorLocal !== 'undefined') notasPorLocal = {}; 
         localStorage.removeItem('carritoTemporal');
-        window.location.href = linkDestinoPedido;
+        actualizarBadge(); 
+        
+        window.location.href = linkCompleto;
     }
 
     function abrirImagen(urlHD, nombre) {
@@ -409,28 +568,22 @@
         resetZoom();
     }
 
-    // --- ZOOM FIJO: SIN ARRASTRE, SOLO PELLIZCO Y DOBLE TAP ---
     function initZoomListeners() {
         imgElement = document.getElementById("imgGrande");
+        if(!imgElement) return;
 
-        // Doble tap para zoom
         let lastTap = 0;
         imgElement.addEventListener('touchend', function(e) {
             const currentTime = new Date().getTime();
             const tapLength = currentTime - lastTap;
             if (tapLength < 300 && tapLength > 0) {
                 e.preventDefault();
-                if (scale === 1) {
-                    scale = 2.5;
-                } else {
-                    scale = 1;
-                }
+                scale = (scale === 1) ? 2.5 : 1;
                 updateTransform();
             }
             lastTap = currentTime;
         });
 
-        // Solo pellizco para zoom, sin arrastre
         imgElement.addEventListener('touchstart', handleTouchStart, { passive: false });
         imgElement.addEventListener('touchmove', handleTouchMove, { passive: false });
         imgElement.addEventListener('touchend', handleTouchEnd);
@@ -468,7 +621,7 @@
     }
 
     function updateTransform() {
-        imgElement.style.transform = `scale(${scale})`;
+        if(imgElement) imgElement.style.transform = `scale(${scale})`;
     }
 
     function resetZoom() {
@@ -560,12 +713,9 @@
     function normalizarTexto(texto) {
         if (!texto) return "";
         return texto.toLowerCase()
-.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-.replace(/ll/g, "y")
-.replace(/i/g, "y")
-.replace(/v/g, "b")
-.replace(/z|c/g, "s")
-.replace(/h/g, "");
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/ll/g, "y").replace(/i/g, "y").replace(/v/g, "b")
+            .replace(/z|c/g, "s").replace(/h/g, "");
     }
 
     function buscarProducto() {
@@ -591,21 +741,14 @@
         const productosFiltrados = todosLosProductos.filter(p => {
             const nombreNorm = normalizarTexto(p.nombre);
             const descNorm = normalizarTexto(p.descripcion || "");
-
             if (nombreNorm.includes(queryNormalizada) || descNorm.includes(queryNormalizada)) return true;
-
-            const palabrasNombre = nombreNorm.split(" ");
-            return palabrasNombre.some(palabra => {
-                const similitud = calcularSimilitud(palabra, queryNormalizada);
-                return similitud > 0.65;
-            });
+            return nombreNorm.split(" ").some(palabra => calcularSimilitud(palabra, queryNormalizada) > 0.65);
         });
 
         if (productosFiltrados.length === 0) {
             resultadosDiv.innerHTML = `<div class="msg-cargando">No encontramos nada parecido a "${query}" 😥</div>`;
             return;
         }
-
         productosFiltrados.forEach(p => renderizarProductoHTML(p, p.id, resultadosDiv, true));
     }
 
@@ -642,53 +785,41 @@
         if(p.variantes){
             tieneVariantes = true;
             let arrVar = p.variantes.split("-");
-
             chips = '<div class="variantes-titulo"><strong>ELIGE UNA OPCIÓN</strong></div><div class="contenedor-chips">';
             arrVar.forEach((v) => {
-                let val = v.trim();
-                let partes = val.split("|");
+                let partes = v.trim().split("|");
                 let nombreVar = partes[0].trim();
                 let precioVar = partes[1]? partes[1].trim() : '';
-
                 if(nombreVar) {
                     let textoChip = precioVar? `${nombreVar} ${precioVar}` : nombreVar;
                     chips += `<div class="chip" data-precio="${precioVar}" onclick="selVariante(this, '${prodId}', '${nombreVar}')">${textoChip}</div>`;
                 }
             });
-            chips += '</div><div style="font-size: 0.78em; color: #636e72; margin: 8px 0 0 5px; font-weight: 600;">* Solo puedes seleccionar una opción por pedido</div>';
+            chips += '</div><div style="font-size: 0.78em; color: #636e72; margin: 8px 0 0 5px; font-weight: 600;">* Solo puedes seleccionar una opción</div>';
         }
 
-        let etiquetaLocal = "";
-        if (esBusqueda) {
-            const nombreDelLocal = mapaLocales[p.localId] || "Local asociado";
-            etiquetaLocal = `<span class="badge-local">📍 De: ${nombreDelLocal}</span>`;
-        }
-
+        let etiquetaLocal = esBusqueda ? `<span class="badge-local">📍 De: ${mapaLocales[p.localId] || "Local"}</span>` : "";
         const urlMiniatura = p.urlImagen || '';
         const urlParaModal = p.urlImagenHD || p.urlImagen || '';
 
-        // Botón verde grisáceo desactivado al inicio + wrap para texto largo
         let btnStyle = tieneVariantes? 'opacity: 0.6; cursor: not-allowed; background: #9ccc65; filter: saturate(0.4);' : '';
         let btnDisabled = tieneVariantes? 'disabled' : '';
-        let btnText = 'Agregar al pedido';
 
         contenedor.innerHTML += `
         <div class="producto-item" id="prod-item-${prodId}" data-variante="" data-precio-base="${p.precio}" data-precio-seleccionado="" data-tiene-variantes="${tieneVariantes}">
             ${etiquetaLocal}
             <div class="prod-info-base" style="margin-bottom: 8px;">
                 <b>📦 ${p.nombre}</b>
-                ${p.descripcion? `<div class="prod-desc" style="margin-top: 8px; background: var(--naranja-claro); border-left: 4px solid var(--naranja); font-weight: 600; color: #5d4037; line-height: 1.4;">🍴 ${p.descripcion}</div>` : ''}
+                ${p.descripcion? `<div class="prod-desc" style="margin-top: 8px; background: var(--naranja-claro); border-left: 4px solid var(--naranja); font-weight: 600; color: #5d4037;">🍴 ${p.descripcion}</div>` : ''}
             </div>
             <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;">
-                <span class="prod-precio" style="margin-bottom: 0; flex-shrink: 0;">${p.precio}</span>
-                <button class="btn-add" style="width: auto; padding: 8px 16px; border-radius: 12px; font-size: 0.9em; min-height: 45px; height: auto; line-height: 1.2; text-align: center; white-space: normal; word-break: break-word; flex: 1; ${btnStyle}" ${btnDisabled} onclick="agregarAlCarrito('${prodId}', '${p.nombre}', '${p.localId}')">${btnText}</button>
+                <span class="prod-precio" style="flex-shrink: 0;">${p.precio}</span>
+                <button class="btn-add" style="flex: 1; ${btnStyle}" ${btnDisabled} onclick="agregarAlCarrito('${prodId}', '${p.nombre}', '${p.localId}')">Agregar al pedido</button>
             </div>
             <div class="prod-cuerpo">
-                <div style="flex:1">
-                    ${chips}
-                </div>
+                <div style="flex:1">${chips}</div>
                 ${urlMiniatura? `<img src="${urlMiniatura}" class="prod-foto-mini" alt="${p.nombre}" onclick="abrirImagen('${urlParaModal}', '${p.nombre}')">` : ''}
             </div>
         </div>`;
     }
-</script> 
+</script>
