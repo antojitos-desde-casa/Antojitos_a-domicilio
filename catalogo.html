@@ -227,7 +227,7 @@
 
 <div id="resultadosBusqueda" style="max-width: 600px; margin: auto; margin-top: 20px; display: none; padding: 0 10px;"></div>
 
-<button id="btnIrAPedidos" class="btn-hacer-pedido" onclick="manejadorBotonPrincipal()">🛒 HACER PEDIDO PERSONALIZADO</button>
+<button id="btnIrAPedidos" class="btn-hacer-pedido" onclick="manejadorBotonPrincipal()">🛒 HACER PEDIDO</button>
 
 <div id="miModal" class="modal" onclick="cerrarModalImagen()">
     <span class="cerrar-modal">&times;</span>
@@ -478,7 +478,8 @@
             </div>`;
         }
         modal.style.display = 'flex';
-        function cerrarCarrito() { 
+    }
+    function cerrarCarrito() { 
         document.getElementById('modalCarrito').style.display = 'none'; 
     }
 
@@ -821,4 +822,3 @@
         </div>`;
     }
 </script>
-    }
