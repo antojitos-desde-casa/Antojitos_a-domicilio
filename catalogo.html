@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo - Antojitos Pueblo Nuevo</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#e67e22">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <style>
@@ -14,7 +16,7 @@
             --texto-suave: #7f8c8d; 
             --verde: #2ecc71; 
             --fondo-desc: #f8f9fa;
-            --gris-elegante: #fcfcfc;
+            --gris-elegante: #fcfc;
             --gris-borde: #e0e0e0;
             --gris-producto: #95a5a6; 
         }
@@ -73,7 +75,6 @@
         .prod-foto-mini { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; border: 1px solid #eee; flex-shrink: 0; cursor: pointer; transition: transform 0.2s; -webkit-tap-highlight-color: transparent; }
         .prod-foto-mini:active { transform: scale(0.95); }
 
-        /* --- ESTILOS MEJORADOS PARA MÁXIMA VISIBILIDAD EN DETALLES --- */
         .grupo-local-carrito {
             background: #fdfdfd;
             border: 1.5px solid #f0f0f0;
@@ -92,12 +93,12 @@
         }
         .detalles-pedido-area {
             width: 100%;
-            border: 2px solid #ccc; /* Borde más marcado */
+            border: 2px solid #ccc;
             border-radius: 12px;
             padding: 12px;
             font-family: inherit;
-            font-size: 1.05em; /* Texto más grande cuando escriben */
-            color: #000; /* Letra negra al escribir */
+            font-size: 1.05em;
+            color: #000;
             resize: none;
             margin-top: 10px;
             background: #fff;
@@ -110,15 +111,13 @@
             box-shadow: 0 0 8px rgba(230, 126, 34, 0.2);
         }
 
-        /* CAMBIO CLAVE: Placeholder mucho más visible y negrito */
         .detalles-pedido-area::placeholder {
-            color: #2d3436 !important; /* Gris oscuro casi negro */
-            font-weight: 700 !important; /* Negrita */
-            font-size: 0.95em; /* Tamaño legible */
-            opacity: 1; /* Asegura que no se vea transparente */
-            font-style: normal; /* Menos cursiva para más claridad */
+            color: #2d3436 !important;
+            font-weight: 700 !important;
+            font-size: 0.95em;
+            opacity: 1;
+            font-style: normal;
         }
-        /* -------------------------------------------------------- */
 
         .variantes-titulo {
             font-size: 0.8em;
@@ -187,7 +186,7 @@
             image-rendering: -webkit-optimize-contrast;
             image-rendering: high-quality;
             touch-action: none;
-            transform-origin: center center;
+            transform-origin: center;
         }
         #caption { color: white; margin-top: 15px; font-weight: 600; font-size: 1.4em; text-align: center; padding: 0 20px; }
         
@@ -228,7 +227,7 @@
 
 <div id="resultadosBusqueda" style="max-width: 600px; margin: auto; margin-top: 20px; display: none; padding: 0 10px;"></div>
 
-<button id="btnIrAPedidos" class="btn-hacer-pedido" onclick="manejadorBotonPrincipal()">🛒 HACER MI PEDIDO</button>
+<button id="btnIrAPedidos" class="btn-hacer-pedido" onclick="manejadorBotonPrincipal()">🛒 HACER PEDIDO PERSONALIZADO</button>
 
 <div id="miModal" class="modal" onclick="cerrarModalImagen()">
     <span class="cerrar-modal">&times;</span>
@@ -247,7 +246,7 @@
         </div>
     </div>
 </div>
-    <script>
+<script>
     const config = {
         apiKey: "AIzaSyAxWMSIqoS1ZXgAO3rOIiOMCrAaAZjDiao",
         authDomain: "antojitos-pueblo-nuevo.firebaseapp.com",
@@ -397,7 +396,7 @@
             btnPrincipal.innerHTML = "🛒 VER MI PEDIDO";
             if(btnConfirmar) btnConfirmar.innerHTML = "Confirmar mi pedido ✅";
         } else {
-            btnPrincipal.innerHTML = "🛒 HACER MI PEDIDO";
+            btnPrincipal.innerHTML = "🛒 HACER MI PEDIDO PERSONALIZADO";
             if(btnConfirmar) btnConfirmar.innerHTML = "Confirmar ✅";
         }
     }
@@ -479,8 +478,7 @@
             </div>`;
         }
         modal.style.display = 'flex';
-    }
-function cerrarCarrito() { 
+        function cerrarCarrito() { 
         document.getElementById('modalCarrito').style.display = 'none'; 
     }
 
@@ -823,3 +821,4 @@ function cerrarCarrito() {
         </div>`;
     }
 </script>
+    }
